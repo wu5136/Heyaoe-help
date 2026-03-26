@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can AI find your store? — Free content scorer for small shops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ────────────────────────────────────────────── */
+:root{
+  /* Backgrounds */
+  --bg:#F7F7F7;
+  --surface:#FFFFFF;
+  --surface-raised:#FFFFFF;
+
+  /* Text — all AAA-compliant on white (≥7:1) */
+  --text:#222222;        /* primary   — 16.7:1 */
+  --text-2:#484848;      /* secondary — 9.3:1  */
+  --text-3:#717171;      /* tertiary  — 4.6:1 (large text only, AAA-large) */
+
+  /* Borders */
+  --border:#DDDDDD;
+  --border-focus:#222222;
+
+  /* Brand accent — Airbnb coral */
+  --coral:#FF5A5F;
+  --coral-bg:#FFF0F0;
+
+  /* Semantic */
+  --green:#1A5C35;       /* AAA on white */
+  --green-bg:#F0FAF4;
+  --green-hl:#C8EDD8;
+  --amber:#6B4000;       /* AAA on white */
+  --amber-bg:#FEF8ED;
+  --amber-border:#F0C050;
+  --amber-hl:#FAE8A0;
+  --red:#8B1A1A;         /* AAA on white */
+  --red-bg:#FEF2F2;
+  --red-hl:#FAC8C8;
+
+  /* Radius — Airbnb scale */
+  --r-sm:8px;
+  --r-md:12px;
+  --r-lg:16px;
+  --r-xl:24px;
+}
+
+/* ── RESET ─────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:17px;font-weight:400;line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.page{max-width:960px;margin:0 auto;padding:56px 32px 96px}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.hd{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+.hd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.wordmark{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.06em;color:var(--text-2);text-transform:uppercase}
+.badge{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border:1px solid var(--border);border-radius:20px;color:var(--text-2);letter-spacing:.04em}
+h1{font-size:clamp(24px,4vw,36px);font-weight:700;line-height:1.15;letter-spacing:-.02em;color:var(--text);margin-bottom:10px}
+h1 em{font-style:italic;color:var(--text-2);font-weight:300}
+.desc{font-size:17px;color:var(--text-2);line-height:1.65;max-width:560px}
+
+/* ── DIM EXPLAINER CARDS ────────────────────────────────── */
+.dim-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:32px}
+.dim-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px}
+.dim-card-label{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.dim-card-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.dim-card-desc{font-size:15px;color:var(--text-2);line-height:1.5}
+.ic-geo{background:#EEF2FF;color:#3730A3}
+.ic-seo{background:#F0FAF4;color:var(--green)}
+.ic-ux{background:#FFF7ED;color:#9A3412}
+.ic-fc{background:#F8F0FF;color:#6B21A8}
+
+/* ── API KEY BOX ────────────────────────────────────────── */
+.key-box{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:28px}
+.key-box-title{font-size:15px;font-weight:600;color:var(--amber);margin-bottom:6px}
+.key-box p{font-size:15px;color:var(--amber);line-height:1.6;margin-bottom:12px}
+.key-box a{color:var(--amber);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.key-row{display:flex;gap:8px;align-items:center}
+.key-row input{flex:1;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:.02em;padding:10px 13px;border:1.5px solid var(--amber-border);border-radius:var(--r-sm);background:var(--surface);color:var(--text)}
+.key-row input:focus{outline:none;border-color:var(--amber)}
+.key-tog{font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;color:var(--amber);font-weight:600;border:none;background:none;padding:0 4px;white-space:nowrap}
+
+/* ── FORM ───────────────────────────────────────────────── */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field{margin-bottom:16px}
+.lbl{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.lbl-hint{font-weight:400;color:var(--text-2);margin-left:4px}
+input[type=text],textarea{
+  width:100%;font-family:'Nunito',sans-serif;font-size:16px;font-weight:400;
+  background:var(--surface);color:var(--text);
+  border:1.5px solid var(--border);border-radius:var(--r-md);
+  transition:border-color .15s;
+}
+input[type=text]{padding:11px 14px}
+textarea{padding:13px 14px;resize:vertical;line-height:1.65}
+input[type=text]:focus,textarea:focus{outline:none;border-color:var(--border-focus)}
+input[type=text]::placeholder,textarea::placeholder{color:var(--text-3)}
+.field-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.foot-hint{font-size:14px;color:var(--text-3)}
+.demo-btn{font-size:14px;font-weight:600;color:var(--coral);cursor:pointer;border:none;background:none;text-decoration:underline;text-underline-offset:2px}
+.demo-btn:hover{color:#CC4448}
+
+/* ── BUTTON ─────────────────────────────────────────────── */
+.btn-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:4px}
+button.go{
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:16px;
+  cursor:pointer;padding:13px 32px;
+  background:var(--coral);color:#FFFFFF;
+  border:none;border-radius:var(--r-md);
+  transition:background .15s,transform .1s;
+  letter-spacing:.01em;
+}
+button.go:hover{background:#CC4448}
+button.go:active{transform:scale(.98)}
+button.go:disabled{opacity:.35;cursor:not-allowed;transform:none}
+button.sm{
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;padding:7px 14px;
+  background:transparent;color:var(--text-2);
+  border:1.5px solid var(--border);border-radius:var(--r-sm);
+  transition:all .12s;
+}
+button.sm:hover{border-color:var(--text);color:var(--text)}
+.st{font-family:'DM Mono',monospace;font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:7px}
+
+/* ── SPINNER ────────────────────────────────────────────── */
+.spin{width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULTS — two-column layout ───────────────────────── */
+.results{margin-top:48px;animation:up .3s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.results-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start}
+
+/* ── LEFT SIDEBAR ───────────────────────────────────────── */
+.sidebar{position:sticky;top:24px}
+.sidebar-type{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--coral-bg);color:var(--coral);border:1px solid #FFCDD0;margin-bottom:14px}
+.sc-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.sc{background:var(--surface);border:2px solid var(--border);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;align-items:center;gap:12px}
+.sc:hover{border-color:var(--text-2)}
+.sc.active{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
+.sc-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.sc-icon{font-size:16px;flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-l{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);line-height:1}
+.sc-name{font-size:11px;color:var(--text-3);line-height:1;margin-top:2px}
+.sc-n{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;flex-shrink:0}
+.sc-bar-v{width:3px;height:36px;border-radius:2px;background:var(--border);overflow:hidden;flex-shrink:0}
+.sc-bar-fill{width:3px;border-radius:2px;transition:height .9s cubic-bezier(.4,0,.2,1)}
+.sidebar-top3{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px}
+.sidebar-top3-t{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px}
+.sidebar-top3-i{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:4px 0;line-height:1.5;color:var(--text)}
+.sidebar-top3-n{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--text-2)}
+
+/* ── RIGHT MAIN CONTENT ─────────────────────────────────── */
+.main-content{min-width:0}
+
+/* ── ? TOOLTIP ──────────────────────────────────────────── */
+.tip-wrap{position:relative;display:inline-flex;align-items:center}
+.tip-q{
+  width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  color:var(--text-2);display:flex;align-items:center;justify-content:center;
+  cursor:help;flex-shrink:0;background:var(--surface);line-height:1;
+}
+.tip-q:hover{border-color:var(--text);color:var(--text)}
+.tip-box{
+  visibility:hidden;opacity:0;
+  position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  width:280px;background:var(--text);color:#FFFFFF;
+  font-size:14px;font-family:'Nunito',sans-serif;font-weight:400;
+  line-height:1.6;padding:12px 14px;border-radius:var(--r-md);
+  z-index:300;pointer-events:none;transition:opacity .15s;white-space:pre-line;
+}
+.tip-box::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--text)}
+.tip-wrap:hover .tip-box{visibility:visible;opacity:1}
+
+/* ── ANNOTATION PANEL ───────────────────────────────────── */
+.ann-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px}
+.ann-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg)}
+.ann-hd-l{display:flex;align-items:center;gap:8px}
+.ann-title{font-size:15px;font-weight:700;color:var(--text)}
+.ann-score{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text-2)}
+.ann-body{padding:20px;font-size:17px;font-weight:400;line-height:1.9;color:var(--text)}
+.ann-legend{display:flex;gap:16px;padding:10px 20px;border-top:1px solid var(--border);background:var(--bg)}
+.leg-i{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-2)}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.leg-fail{background:var(--red-hl);border:1px solid #D08080}
+.leg-warn{background:var(--amber-hl);border:1px solid #CCA030}
+.leg-pass{background:var(--green-hl);border:1px solid #70C090}
+
+/* ── INLINE HIGHLIGHTS ───────────────────────────────────── */
+.hl{border-radius:4px;padding:1px 1px;cursor:help;position:relative;display:inline}
+.hl-fail{background:var(--red-hl)}
+.hl-warn{background:var(--amber-hl)}
+.hl-pass{background:var(--green-hl)}
+.hl-tip{
+  visibility:hidden;opacity:0;
+  position:absolute;bottom:calc(100% + 7px);left:0;
+  min-width:200px;max-width:300px;
+  background:var(--text);color:#FFFFFF;
+  font-size:14px;font-family:'Nunito',sans-serif;font-weight:400;
+  line-height:1.6;padding:10px 12px;border-radius:var(--r-md);
+  z-index:400;pointer-events:none;white-space:normal;transition:opacity .12s;
+}
+.hl-tip::after{content:'';position:absolute;top:100%;left:12px;border:5px solid transparent;border-top-color:var(--text)}
+.hl:hover .hl-tip{visibility:visible;opacity:1}
+
+/* ── CHECK LIST ─────────────────────────────────────────── */
+.dim{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden}
+.dim-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.dim-hd-l{display:flex;align-items:center;gap:8px}
+.dim-hl{font-size:15px;font-weight:700;color:var(--text)}
+.dim-hr{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--text-2)}
+.dim-bd{padding:0 20px}
+.ck{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border)}
+.ck:last-child{border-bottom:none}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.dp{background:var(--green)}.dw{background:#B87300}.df{background:var(--red)}
+.ck-b{flex:1;min-width:0}
+.ck-n{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4}
+/* Source tiers */
+.src-block{margin-bottom:6px}
+.src-tier{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;margin-right:4px;margin-bottom:3px}
+.src-official{background:#EEF2FF;color:#3730A3}
+.src-research{background:var(--green-bg);color:var(--green)}
+.src-background{background:#F5F5F5;color:var(--text-2)}
+.src-text{font-size:13px;color:var(--text-2);line-height:1.5;margin-top:2px}
+/* Evidence & Fix */
+.ck-section-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px;margin-top:8px}
+.ck-ev{font-size:15px;color:var(--text-2);line-height:1.6}
+.ck-fix{
+  font-size:15px;color:var(--amber);
+  background:var(--amber-bg);border-left:3px solid var(--amber-border);
+  padding:10px 12px;margin-top:8px;line-height:1.6;
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+}
+.ck-pts{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--text-2);white-space:nowrap;padding-top:5px}
+
+/* ── TOP 3 ──────────────────────────────────────────────── */
+.top3{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;margin-top:10px}
+.top3-t{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px}
+.top3-i{display:flex;gap:12px;align-items:flex-start;font-size:16px;padding:5px 0;line-height:1.6;color:var(--text)}
+.top3-n{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;color:var(--text-2)}
+
+/* ── REWRITE ────────────────────────────────────────────── */
+.rw{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.rw-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.rw-hl{font-size:15px;font-weight:700;color:var(--text)}
+.rw-body{padding:20px;font-size:17px;font-weight:400;line-height:1.85;color:var(--text);white-space:pre-wrap}
+.rw-foot{font-size:13px;color:var(--text-3);padding:10px 20px;border-top:1px solid var(--border);background:var(--bg);line-height:1.5}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+.ft{margin-top:72px;padding-top:20px;border-top:1px solid var(--border);font-size:13px;color:var(--text-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;line-height:1.6}
+
+/* ── WHO BOX ─────────────────────────────────────────────── */
+.who-box{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.who-item{display:flex;align-items:flex-start;gap:10px;font-size:15px;color:var(--text-2);line-height:1.5}
+.who-check{color:var(--green);font-weight:700;font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* ── ANNOTATION FALLBACK ─────────────────────────────────── */
+.ann-fallback{display:flex;align-items:flex-start;gap:10px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:8px;font-size:14px;color:var(--text-2);line-height:1.5}
+.ann-fallback-icon{font-size:15px;flex-shrink:0}
+.ann-no-highlights{background:var(--bg);border-radius:var(--r-sm);padding:14px 16px;font-size:15px;color:var(--text-2);text-align:center;line-height:1.6}
+
+/* ── FEEDBACK BAR ────────────────────────────────────────── */
+.feedback-bar{margin-top:48px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.feedback-q{font-size:15px;color:var(--text-2)}
+.feedback-btns{display:flex;align-items:center;gap:10px}
+.fb-btn{font-family:'Nunito',sans-serif;font-size:18px;cursor:pointer;padding:6px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);transition:all .15s;line-height:1}
+.fb-btn:hover{border-color:var(--coral);background:var(--coral-bg)}
+.fb-btn.voted{border-color:var(--green);background:var(--green-bg);cursor:default}
+.feedback-ty{font-size:14px;color:var(--green);font-weight:600;display:none}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:680px){
+  .row2,.dim-cards,.type-options{grid-template-columns:1fr}
+  .results-layout{grid-template-columns:1fr}
+  .sidebar{position:static}
+  .sc-stack{flex-direction:row;flex-wrap:wrap}
+  .sc{flex:1;min-width:140px}
+  h1{font-size:24px}
+  .hd-top{flex-direction:column}
+  .tip-box{left:auto;right:0;transform:none}
+  .tip-box::before{left:auto;right:10px;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header class="hd">
+  <div class="hd-top">
+    <span class="wordmark">Content Scorer</span>
+    <span class="badge">Free · No signup needed</span>
+  </div>
+  <h1>Can AI find<br><em>your store?</em></h1>
+  <p class="desc">You wrote the words. But can Google AI, ChatGPT, and Perplexity actually find and quote your page? Paste any product or category text below — get a score and a fixed version in 30 seconds.</p>
+
+  <div class="who-box">
+    <div class="who-item">
+      <span class="who-check">✓</span>
+      <span>You run a small online store and write your own product descriptions</span>
+    </div>
+    <div class="who-item">
+      <span class="who-check">✓</span>
+      <span>You manage a shop's website content but don't have an SEO team</span>
+    </div>
+    <div class="who-item">
+      <span class="who-check">✓</span>
+      <span>You want to know why competitors show up in AI search and you don't</span>
+    </div>
+  </div>
+</header>
+
+<!-- WHAT GETS SCORED -->
+<div class="dim-cards">
+  <div class="dim-card">
+    <div class="dim-card-label"><span class="dim-card-icon ic-geo">✦</span>AI visibility</div>
+    <div class="dim-card-desc">Can ChatGPT or Google AI quote your page as a direct answer when someone asks about your product?</div>
+  </div>
+  <div class="dim-card">
+    <div class="dim-card-label"><span class="dim-card-icon ic-seo">↑</span>Search ranking</div>
+    <div class="dim-card-desc">Does your page have the right words and product details for Google to rank it when people search?</div>
+  </div>
+  <div class="dim-card">
+    <div class="dim-card-label"><span class="dim-card-icon ic-ux">◎</span>Easy to read</div>
+    <div class="dim-card-desc">Can a real customer quickly understand what you're selling and what to do next?</div>
+  </div>
+  <div class="dim-card">
+    <div class="dim-card-label"><span class="dim-card-icon ic-fc">◈</span>Trustworthy facts</div>
+    <div class="dim-card-desc">Does your text use real numbers and specifics — or just vague claims like "high quality" and "best in class"?</div>
+  </div>
+</div>
+
+<!-- API KEY -->
+<div class="key-box">
+  <div class="key-box-title">You need an Anthropic API key</div>
+  <p>Get a free key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>. Your key is used directly in your browser and never stored anywhere.</p>
+  <div class="key-row">
+    <input type="password" id="api-key" placeholder="sk-ant-api03-…" autocomplete="off">
+    <button class="key-tog" onclick="toggleKey()">Show</button>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="row2">
+  <div class="field">
+    <label class="lbl">Main keyword for this page</label>
+    <input type="text" id="kw" placeholder="e.g. mattress, dog harness, standing desk">
+  </div>
+  <div class="field">
+    <label class="lbl">Your industry <span class="lbl-hint">(optional)</span></label>
+    <input type="text" id="ind" placeholder="e.g. pet supplies, home furniture">
+  </div>
+</div>
+<div class="field">
+  <label class="lbl">Your product or category page text</label>
+  <textarea id="txt" rows="9" placeholder="Paste the main text from your product page, category page, or buying guide. Works best with 100–400 words.&#10;&#10;Not sure what to paste? Try the intro paragraph from any category page on your store — the text that appears before the product grid."></textarea>
+  <div class="field-foot">
+    <span class="foot-hint">Works with product pages, category pages, and buying guides</span>
+    <button class="demo-btn" onclick="loadDemo()">See an example →</button>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button class="go" id="btn" onclick="run()">Score my content</button>
+  <span class="st" id="st"></span>
+</div>
+
+<div id="out"></div>
+
+<div class="feedback-bar">
+  <span class="feedback-q">Was this scoring helpful for your content?</span>
+  <div class="feedback-btns">
+    <button class="fb-btn" onclick="feedback('up',this)" title="Yes, helpful">👍</button>
+    <button class="fb-btn" onclick="feedback('down',this)" title="Not helpful">👎</button>
+    <span class="feedback-ty" id="fb-ty">Thanks for the feedback!</span>
+  </div>
+</div>
+
+<footer class="ft">
+  <span>Free tool for small store owners and content writers</span>
+  <span>Scoring based on publicly documented Google &amp; research standards — <strong style="color:var(--text-2)">Official</strong> · <strong style="color:var(--text-2)">Research</strong> · <strong style="color:var(--text-2)">Background</strong></span>
+</footer>
+</div>
+
+<script>
+const SOURCES={
+  geo:{
+    c1:'Official: Google Search Central — AI Features, Dec 2025 · developers.google.com/search/docs/appearance/ai-features\nResearch: BrightEdge AI Overviews Study, 2025\nBackground: Google Passage Indexing, Oct 2020 — the technical basis for paragraph-level extraction that AI Overviews and ChatGPT build on',
+    c2:'Official: Google FAQ rich results · developers.google.com/search\nResearch: Google AI Overviews citation study, 2025\nBackground: schema.org FAQPage spec',
+    c3:'Official: Google Search Central — AI Features, Dec 2025\nResearch: Semrush entity SEO guide, 2025\nBackground: Google Knowledge Graph + BERT, Oct 2019'
+  },
+  seo:{
+    c1:'Official: Google Search Essentials · developers.google.com/search/docs/fundamentals\nResearch: Moz On-Page SEO guide · moz.com/learn/seo/on-page-factors',
+    c2:'Official: Google Search Central — AI Features, Dec 2025\nResearch: Google MUM, May 2021 · blog.google\nBackground: Google BERT, Oct 2019',
+    c3:'Research: Ahrefs Content Length & Rankings study · ahrefs.com/blog\nResearch: SE Ranking AI Overviews analysis, 2025'
+  },
+  ux:{
+    c1:'Research: Flesch-Kincaid readability formula, 1975 · Nielsen Norman Group · nngroup.com\nOfficial: Plain Language Action Network · plainlanguage.gov',
+    c2:'Official: Plain Language Action Network · plainlanguage.gov\nResearch: CXL Institute conversion copywriting research · cxl.com',
+    c3:'Official: Plain Language Action Network · plainlanguage.gov\nOfficial: UK Gov Digital Service Content Design guide · gov.uk/guidance/content-design'
+  },
+  fc:{
+    c1:'Official: Google Search Central — AI Features, Dec 2025: AI systems prioritise content with clear entity signals\nResearch: Google Knowledge Graph + Moz/Semrush entity SEO research, 2025',
+    c2:'Official: Google E-E-A-T guidelines, 2025: trustworthiness requires accurate factual content\nResearch: SearchAtlas AEO study, 2025: superlatives without evidence reduce credibility scoring'
+  }
+};
+
+const DIM_INFO={
+  geo:{
+    label:'AI visibility',
+    icon:'✦',
+    full:'AI visibility — can AI quote your page?',
+    tip:'When someone asks ChatGPT or Google AI about your product, it looks for sentences it can quote directly as an answer.\n\nA "quotable answer" is a sentence that: (1) contains a specific fact like a number, size, or material, and (2) makes sense on its own without needing other sentences around it.\n\n"Memory foam contours to body shape and reduces motion transfer" = quotable ✓\n"We are here to help you find the right product" = not quotable ✗\n\nThis score tells you how many of those quotable answers your page has.'
+  },
+  seo:{
+    label:'Search ranking',
+    icon:'↑',
+    full:'Search ranking — does Google understand your page?',
+    tip:'Does your page have the right signals for Google to rank it when people search for your product?\n\nThis checks: Is your main keyword near the top? Does the page mention sizes, materials, who it\'s for? Is there enough text?\n\nDifferent from AI visibility: SEO is about getting into the list of results. AI visibility is about being quoted as the answer.'
+  },
+  ux:{
+    label:'Easy to read',
+    icon:'◎',
+    full:'Easy to read — can customers understand it?',
+    tip:'Can a real customer quickly understand what you\'re selling and what to do next?\n\nThis checks: Are sentences short enough to scan? Is there a clear call to action? Are there any unexplained technical terms?\n\nDifferent from AI visibility: AI visibility is about machines parsing your text. Readability is about humans understanding it.'
+  },
+  fc:{
+    label:'Trustworthy facts',
+    icon:'◈',
+    full:'Trustworthy facts — does your text back up its claims?',
+    tip:'Does your text use real, specific numbers and facts — or just vague marketing words?\n\nAI engines trust content with specific details: "fits a 60" × 80" queen mattress" beats "fits most bed sizes". Numbers, measurements, and material names make your content more credible.\n\nWatch out for: "best in class", "premium quality", "amazing" — these don\'t help. Specific facts do.'
+  }
+};
+
+const DEMO_KW='mattress';
+const DEMO_IND='home goods / sleep';
+const DEMO_TXT=`Choosing the right mattress starts with knowing how you sleep. Side sleepers typically need more pressure relief at the shoulder and hip, while back and stomach sleepers need firmer support to keep the spine aligned.
+
+Mattress firmness is rated on a 1–10 scale. A medium-firm mattress, rated 5–7, works for most adults and suits couples with different sleep preferences. Memory foam contours to body shape and reduces motion transfer. Innerspring mattresses use steel coil systems and sleep cooler than foam. Hybrid mattresses combine both — a foam comfort layer over a coil support core.
+
+Most mattresses ship compressed in a box and expand within 24–72 hours. Twin sizes start at 38" × 75". Queen size, the most popular choice, measures 60" × 80". King measures 76" × 80".
+
+Start by identifying your sleep position and firmness preference — then filter by size and material type to find options that match your setup.`;
+
+let _activeDim='geo';
+let _annotations={};
+let _origTxt='';
+let _detectedType='category';
+
+function loadDemo(){
+  document.getElementById('kw').value=DEMO_KW;
+  document.getElementById('ind').value=DEMO_IND;
+  document.getElementById('txt').value=DEMO_TXT;
+}
+function toggleKey(){
+  const i=document.getElementById('api-key');
+  const b=document.querySelector('.key-tog');
+  i.type=i.type==='password'?'text':'password';
+  b.textContent=i.type==='password'?'Show':'Hide';
+}
+
+function col(n){return n>=80?'var(--green)':n>=60?'var(--amber)':'var(--red)'}
+function dotClass(c){return c.pass?'dp':c.pts>0?'dw':'df'}
+
+function findQuote(text,quote){
+  if(!quote||quote.length<4)return null;
+  const tl=text.toLowerCase();
+  const ql=quote.toLowerCase().trim();
+  let idx=tl.indexOf(ql);
+  if(idx>=0)return{start:idx,end:idx+ql.length};
+  const short=ql.slice(0,Math.min(35,ql.length));
+  idx=tl.indexOf(short);
+  if(idx>=0)return{start:idx,end:idx+short.length};
+  return null;
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+/* ── JS DATA LAYER — computed before AI call ─────────────── */
+function computeMetrics(txt,kw){
+  // Split sentences on . ! ? followed by space or end, skip very short fragments
+  const sents=txt.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(s=>s.split(/\s+/).length>=4);
+  const wordCounts=sents.map(s=>s.split(/\s+/).length);
+  const avgLen=wordCounts.length?Math.round(wordCounts.reduce((a,b)=>a+b,0)/wordCounts.length):0;
+  const longSents=wordCounts.filter(n=>n>25).length;
+
+  // Flesch Reading Ease (approximate — counts syllables via vowel groups)
+  const words=txt.split(/\s+/).filter(Boolean);
+  const syllables=words.reduce((acc,w)=>{
+    const s=(w.toLowerCase().match(/[aeiouy]+/g)||[]).length;
+    return acc+Math.max(1,s);
+  },0);
+  const flesch=words.length>0
+    ?Math.round(206.835-(1.015*(words.length/Math.max(1,sents.length)))-(84.6*(syllables/Math.max(1,words.length))))
+    :0;
+  const fleschClamped=Math.min(100,Math.max(0,flesch));
+
+  // Keyword distance — index of first occurrence / total chars
+  const kwIdx=txt.toLowerCase().indexOf(kw.toLowerCase());
+  const kwFirst50=kwIdx>=0&&kwIdx<=txt.split(/\s+/).slice(0,50).join(' ').length;
+  const kwDistWords=kwIdx>=0?txt.slice(0,kwIdx).split(/\s+/).filter(Boolean).length:-1;
+
+  // Sentence length distribution
+  const short=wordCounts.filter(n=>n<=12).length;
+  const medium=wordCounts.filter(n=>n>12&&n<=22).length;
+  const long=wordCounts.filter(n=>n>22).length;
+
+  // Entity count — numbers, measurements, model names, named materials
+  const entities=(txt.match(/\b\d+[\w"'°%]*|\b[A-Z][a-z]+[A-Z]\w*|\b\d+[\s-]?(?:inch|in|mm|cm|ft|lb|lbs|kg|oz|mph|psi|rpm|gtw|cfm)\b/gi)||[]);
+  const entityCount=entities.length;
+  const entityExamples=[...new Set(entities.map(e=>e.trim()))].slice(0,5);
+
+  return{avgLen,longSents,fleschClamped,kwFirst50,kwDistWords,short,medium,long,wordTotal:words.length,sentTotal:sents.length,entityCount,entityExamples};
+}
+
+/* ── CHARACTER OFFSET ANNOTATION ───────────────────────── */
+function buildAnnotatedHtml(txt,annotations){
+  const unmatched=[];
+  if(!annotations||!annotations.length)return{html:escHtml(txt).replace(/\n/g,'<br>'),unmatched};
+  const spans=[];
+  annotations.forEach(a=>{
+    // Prefer character offsets from AI
+    if(typeof a.start==='number'&&typeof a.end==='number'&&a.start<a.end&&a.end<=txt.length){
+      spans.push({start:a.start,end:a.end,reason:a.reason,severity:a.severity,label:a.label||''});
+      return;
+    }
+    // Fallback to quote matching
+    if(a.quote){
+      const loc=findQuote(txt,a.quote);
+      if(loc)spans.push({...loc,reason:a.reason,severity:a.severity,label:a.label||''});
+      else if(a.severity!=='pass')unmatched.push(a);
+    }
+  });
+  spans.sort((a,b)=>a.start-b.start);
+  const clean=[];let last=-1;
+  spans.forEach(s=>{if(s.start>last){clean.push(s);last=s.end;}});
+  let html='';let pos=0;
+  clean.forEach(s=>{
+    html+=escHtml(txt.slice(pos,s.start)).replace(/\n/g,'<br>');
+    html+=`<span class="hl hl-${s.severity}">${escHtml(txt.slice(s.start,s.end))}<span class="hl-tip">${escHtml(s.reason)}</span></span>`;
+    pos=s.end;
+  });
+  html+=escHtml(txt.slice(pos)).replace(/\n/g,'<br>');
+  return{html,unmatched};
+}
+
+function buildAnnotations(r){
+  const out={};
+  ['geo','seo','ux','fc'].forEach(dim=>{
+    const anns=[];
+    const d=r[dim];
+    Object.keys(d).filter(k=>k!=='total').forEach(k=>{
+      const c=d[k];
+      if(c&&typeof c==='object'){
+        anns.push({
+          quote:c.quote||'',
+          start:c.start,
+          end:c.end,
+          reason:c.annotation_reason||c.fix||c.evidence||'',
+          severity:c.pass?'pass':c.pts>0?'warn':'fail',
+          label:c.label||k
+        });
+      }
+    });
+    out[dim]=anns;
+  });
+  return out;
+}
+
+function renderSource(dimKey,checkKey){
+  const raw=SOURCES[dimKey]?.[checkKey]||'';
+  if(!raw)return'';
+  let html='<div class="src-block">';
+  raw.split('\n').forEach(line=>{
+    if(line.startsWith('Official:')){
+      html+=`<span class="src-tier src-official">Official</span><span class="src-text">${escHtml(line.replace('Official:','').trim())}</span><br>`;
+    }else if(line.startsWith('Research:')){
+      html+=`<span class="src-tier src-research">Research</span><span class="src-text">${escHtml(line.replace('Research:','').trim())}</span><br>`;
+    }else if(line.startsWith('Background:')){
+      html+=`<span class="src-tier src-background">Background</span><span class="src-text">${escHtml(line.replace('Background:','').trim())}</span><br>`;
+    }
+  });
+  html+='</div>';
+  return html;
+}
+
+function renderAnnPanel(dim){
+  const anns=_annotations[dim]||[];
+  const {html,unmatched}=buildAnnotatedHtml(_origTxt,anns);
+  const annText=document.getElementById('ann-text');
+  if(!annText)return;
+  annText.innerHTML=html;
+  // Render fallback notices for unmatched
+  const fb=document.getElementById('ann-fallbacks');
+  if(fb){
+    if(unmatched.length){
+      fb.innerHTML=unmatched.map(a=>
+        `<div class="ann-fallback"><span class="ann-fallback-icon">↓</span><span><strong>${escHtml(a.label)}</strong> — couldn't locate this text in your content. See the check details below for the fix.</span></div>`
+      ).join('');
+      fb.style.display='block';
+    }else{
+      fb.style.display='none';
+      fb.innerHTML='';
+    }
+  }
+}
+
+function switchDim(dim){
+  _activeDim=dim;
+  document.querySelectorAll('.sc').forEach(el=>el.classList.toggle('active',el.dataset.dim===dim));
+  const annTitle=document.getElementById('ann-title');
+  const annScore=document.getElementById('ann-score');
+  const annTip=document.getElementById('ann-tip-content');
+  if(annTitle)annTitle.textContent=DIM_INFO[dim].full;
+  if(annScore)annScore.textContent=(document.querySelector(`.sc[data-dim="${dim}"] .sc-n`)?.textContent||'–')+' / 100';
+  if(annTip)annTip.textContent=DIM_INFO[dim].tip;
+  renderAnnPanel(dim);
+  document.querySelectorAll('.dim-block').forEach(el=>{
+    el.style.display=el.dataset.dim===dim?'block':'none';
+  });
+}
+
+function renderResults(r,origTxt){
+  _origTxt=origTxt;
+  _annotations=buildAnnotations(r);
+  const dimKeys=['geo','seo','ux','fc'];
+
+  let h='<div class="results"><div class="results-layout">';
+
+  // ── LEFT SIDEBAR ──────────────────────────────────────────
+  h+='<div class="sidebar">';
+
+  // Score cards — vertical stack
+  h+='<div class="sc-stack">';
+  dimKeys.forEach(k=>{
+    const t=r[k]?.total||0;const c=col(t);
+    const info=DIM_INFO[k];
+    const barH=Math.round((t/100)*36);
+    h+=`<div class="sc${k===_activeDim?' active':''}" data-dim="${k}" onclick="switchDim('${k}')">
+      <div class="sc-left">
+        <span class="sc-icon">${info.icon}</span>
+        <div class="sc-info">
+          <div class="sc-l">${info.label}</div>
+          <div class="sc-name">${k==='geo'?'AI visibility':k==='seo'?'Search ranking':k==='ux'?'Readability':'AI trust'}</div>
+        </div>
+      </div>
+      <div class="sc-n" style="color:${c}">${t}</div>
+      <div class="sc-bar-v"><div class="sc-bar-fill" style="height:${barH}px;margin-top:${36-barH}px;background:${c}"></div></div>
+    </div>`;
+  });
+  h+='</div>';
+
+  // Top 3 in sidebar
+  if(r.top3?.filter(Boolean).length){
+    h+='<div class="sidebar-top3"><div class="sidebar-top3-t">Top 3 priorities</div>';
+    r.top3.filter(Boolean).forEach((t,i)=>{
+      h+=`<div class="sidebar-top3-i"><div class="sidebar-top3-n">${i+1}</div><span>${escHtml(t)}</span></div>`;
+    });
+    h+='</div>';
+  }
+  h+='</div>'; // end sidebar
+
+  // ── RIGHT MAIN CONTENT ────────────────────────────────────
+  h+='<div class="main-content">';
+
+  // Annotation panel
+  const initAnns=_annotations[_activeDim]||[];
+  const {html:initHtml,unmatched:initUnmatched}=buildAnnotatedHtml(origTxt,initAnns);
+  const initFallbacks=initUnmatched.length?initUnmatched.map(a=>
+    `<div class="ann-fallback"><span class="ann-fallback-icon">↓</span><span><strong>${escHtml(a.label)}</strong> — couldn't locate this text. See check details below.</span></div>`
+  ).join(''):'';
+
+  h+=`<div class="ann-panel">
+    <div class="ann-hd">
+      <div class="ann-hd-l">
+        <span class="ann-title" id="ann-title">${DIM_INFO[_activeDim].full}</span>
+        <div class="tip-wrap">
+          <div class="tip-q">?</div>
+          <div class="tip-box" id="ann-tip-content">${DIM_INFO[_activeDim].tip}</div>
+        </div>
+      </div>
+      <span class="ann-score" id="ann-score">${r[_activeDim]?.total||0} / 100</span>
+    </div>
+    <div class="ann-body">
+      <div id="ann-fallbacks" style="margin-bottom:${initFallbacks?'12px':'0'}">${initFallbacks}</div>
+      <div id="ann-text">${initHtml}</div>
+    </div>
+    <div class="ann-legend">
+      <div class="leg-i"><div class="leg-dot leg-fail"></div>Needs fixing</div>
+      <div class="leg-i"><div class="leg-dot leg-warn"></div>Could improve</div>
+      <div class="leg-i"><div class="leg-dot leg-pass"></div>Doing well</div>
+    </div>
+  </div>`;
+
+  // Check detail blocks
+  dimKeys.forEach(k=>{
+    const d=r[k];if(!d)return;
+    const checks=Object.keys(d).filter(x=>x!=='total'&&x!=='quote'&&x!=='annotation_reason').map(x=>({...d[x],_k:x}));
+    const info=DIM_INFO[k];
+    h+=`<div class="dim dim-block" data-dim="${k}" style="display:${k===_activeDim?'block':'none'}">
+      <div class="dim-hd">
+        <div class="dim-hd-l">
+          <span class="dim-hl">${info.full}</span>
+          <div class="tip-wrap">
+            <div class="tip-q">?</div>
+            <div class="tip-box">${escHtml(info.tip)}</div>
+          </div>
+        </div>
+        <span class="dim-hr">${d.total} / 100</span>
+      </div>
+      <div class="dim-bd">`;
+    checks.forEach(c=>{
+      if(typeof c!=='object'||!c.label)return;
+      const srcHtml=renderSource(k,c._k);
+      h+=`<div class="ck">
+        <div class="dot ${dotClass(c)}"></div>
+        <div class="ck-b">
+          <div class="ck-n">${c.label}</div>
+          ${srcHtml}
+          ${c.evidence?`<div class="ck-section-label">What we found</div><div class="ck-ev">${escHtml(c.evidence)}</div>`:''}
+          ${c.fix?`<div class="ck-section-label">How to fix</div><div class="ck-fix">${escHtml(c.fix)}</div>`:''}
+        </div>
+        <div class="ck-pts">${c.pts} / ${c.max}</div>
+      </div>`;
+    });
+    h+='</div></div>';
+  });
+
+  // Rewrite
+  h+=`<div class="rw">
+    <div class="rw-hd">
+      <span class="rw-hl">Improved version — ready to copy</span>
+      <button class="sm" onclick="copyRw()">Copy text</button>
+    </div>
+    <div class="rw-body" id="rw"><span class="spin" style="display:inline-block;margin-right:8px"></span>Generating improved version…</div>
+    <div class="rw-foot" id="rw-foot"></div>
+  </div>`;
+
+  h+='</div>'; // end main-content
+  h+='</div>'; // end results-layout
+  h+='</div>'; // end results
+  document.getElementById('out').innerHTML=h;
+}
+
+async function callApi(apiKey,prompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.statusText);}
+  const d=await res.json();
+  return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+}
+
+async function run(){
+  const apiKey=document.getElementById('api-key').value.trim();
+  const txt=document.getElementById('txt').value.trim();
+  const kw=document.getElementById('kw').value.trim();
+  const ind=document.getElementById('ind').value.trim()||'e-commerce';
+  if(!apiKey){alert('Please enter your Anthropic API key.');return;}
+  if(!txt){alert('Please paste your content.');return;}
+  if(!kw){alert('Please enter your main keyword.');return;}
+
+  const btn=document.getElementById('btn');
+  btn.disabled=true;
+  _activeDim='geo';
+  document.getElementById('st').innerHTML='<span class="spin"></span><span>Analysing…</span>';
+  document.getElementById('out').innerHTML='';
+
+  // ── STEP 1: Compute hard metrics in JS (no AI needed) ────
+  const m=computeMetrics(txt,kw);
+
+  const prompt=`You are an e-commerce content evaluator. The following hard metrics have already been calculated by JavaScript — do NOT recalculate them, treat them as ground truth:
+
+KEYWORD: "${kw}"
+INDUSTRY: "${ind}"
+WORD COUNT: ${m.wordTotal}
+SENTENCE COUNT: ${m.sentTotal}
+AVG SENTENCE LENGTH: ${m.avgLen} words
+SENTENCES OVER 25 WORDS: ${m.longSents}
+FLESCH READING EASE: ${m.fleschClamped} (0=very hard, 100=very easy; 60–70 is ideal)
+KEYWORD IN FIRST 50 WORDS: ${m.kwFirst50?'YES':'NO'} (appears at word ${m.kwDistWords>=0?m.kwDistWords:'not found'})
+SENTENCE DISTRIBUTION: ${m.short} short (≤12w) · ${m.medium} medium (13–22w) · ${m.long} long (>22w)
+ENTITY COUNT: ${m.entityCount} specific entities detected (${m.entityExamples.join(', ')||'none'})
+
+Use these numbers directly in your scoring. Do not re-estimate them.
+
+─── AI VISIBILITY (max 100) ───────────────────────────────
+Goal: measure how many sentences AI engines can directly quote as answers to real user questions.
+A "citable answer" = a sentence that independently answers a real question, contains at least one specific fact (number, size, material, brand, time), and does NOT start with vague subjects like "it", "this", "we", "you".
+
+✓ Citable: "Memory foam contours to body shape and reduces motion transfer."
+✓ Citable: "A 2-inch receiver handles loads up to 3,500 lbs GTW."
+✗ Not citable: "We are here to help you find the right product."
+✗ Not citable: "The best choice depends on how you plan to use it."
+
+c1 — Citable answers count (40pts): Count ALL citable answer sentences. 6+=40,4-5=30,3=20,2=12,1=6,0=0. Label: "Sentences AI can directly quote as answers"
+c2 — Opening answer (35pts): Do the first 60 words contain at least one citable answer? Yes=35, Citable answer exists but not in opening=12, No citable answer anywhere=0. Label: "Opening has a directly quotable answer"
+c3 — Answer variety (25pts): Do citable answers cover 3+ different question types (what is it / how does it work / who is it for / what size-spec / how to install / what fits)? 3+=25,2=15,1=5,0=0. Label: "Answers cover different customer questions"
+
+─── SEARCH RANKING (max 100) ──────────────────────────────
+c1 Keyword near the top (40pts): USE PRE-COMPUTED VALUE — keyword in first 50 words=${m.kwFirst50?'YES':'NO'}. YES=40, NO but present=20, absent=0. Label: "Keyword appears near the top"
+c2 Product details covered (30pts): check (1)size/measurement (2)material/type (3)who it's for (4)what it fits (5)performance/rating. score=round((found/5)*30). Label: "Key product details covered"
+c3 Enough text (30pts): USE PRE-COMPUTED — word count=${m.wordTotal}. 200+=30,120-199=20,80-119=12,<80=0. Label: "Enough text on the page"
+
+─── EASY TO READ (max 100) ────────────────────────────────
+c1 Short sentences (40pts): USE PRE-COMPUTED — avg sentence length=${m.avgLen} words. <=18=40,19-22=28,23-28=14,>28=0. Label: "Sentences are short enough to scan"
+c2 Tells customer what to do next (35pts): "start by"/"filter by"/"choose"/"select"/"look for"/"check"/"compare"/"narrow by"/"next step" present=35,absent=0. Label: "Tells customer what to do next"
+c3 No unexplained jargon (25pts): GTW,GVWR,WDH,SAE,OEM,SKU,MSRP,CFM,RPM,PSI,BTU without plain-English explanation=10,else=25. Label: "No unexplained technical terms"
+
+─── TRUSTWORTHY FACTS (max 100) ───────────────────────────
+c1 Specific entities and details (50pts): USE PRE-COMPUTED — entity count=${m.entityCount} (${m.entityExamples.join(', ')||'none found'}). Tell user exactly how many entities were found and what they are. 5+=50,4=40,3=28,2=16,1=8,0=0. Label: "Specific numbers and product details"
+c2 No empty marketing words (50pts): count "best"/"amazing"/"perfect"/"industry-leading"/"incredible"/"world-class"/"premium"/"unmatched" without a supporting stat. 0=50,1=30,2=15,3+=0. Label: "No empty marketing words"
+
+─── REWRITE ────────────────────────────────────────────────
+Produce an improved version:
+1. Open with the single most useful citable answer about "${kw}" — a specific fact, not a welcome sentence
+2. Include 5+ citable answer sentences covering at least 3 different question types
+3. Zero empty marketing words
+4. End with a clear action directive
+5. Average sentence under 18 words, 150-220 words total
+6. Plain honest tone like a knowledgeable friend
+
+─── ANNOTATION INSTRUCTIONS ───────────────────────────────
+For each check provide pts, max, pass, label, evidence (plain language), fix (plain language), AND:
+- "start": character index in the original content where the highlight begins (integer)
+- "end": character index where it ends (integer)
+- "quote": verbatim substring as backup (in case index is wrong)
+- "annotation_reason": max 12 plain-language words
+
+CONTENT (character indices are 0-based from the start of this text):
+${txt}
+
+Return ONLY this JSON:
+{"geo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"seo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"ux":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"fc":{"total":0,"c1":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"top3":["","",""],"rewrite":""}`;
+
+  try{
+    const raw=await callApi(apiKey,prompt);
+    const match=raw.match(/\{[\s\S]*\}/);
+    const r=JSON.parse(match?match[0]:raw);
+    // Apply pre-computed metrics to override AI arithmetic
+    if(m.kwFirst50){r.seo.c1.pts=40;r.seo.c1.pass=true;}
+    else if(m.kwDistWords>=0){r.seo.c1.pts=20;r.seo.c1.pass=false;}
+    else{r.seo.c1.pts=0;r.seo.c1.pass=false;}
+    const wcPts=m.wordTotal>=200?30:m.wordTotal>=120?20:m.wordTotal>=80?12:0;
+    r.seo.c3.pts=wcPts;r.seo.c3.pass=wcPts===30;
+    const avgPts=m.avgLen<=18?40:m.avgLen<=22?28:m.avgLen<=28?14:0;
+    r.ux.c1.pts=avgPts;r.ux.c1.pass=avgPts===40;
+    const entPts=m.entityCount>=5?50:m.entityCount===4?40:m.entityCount===3?28:m.entityCount===2?16:m.entityCount===1?8:0;
+    r.fc.c1.pts=entPts;r.fc.c1.pass=entPts>=40;
+    // Enrich entity evidence with JS-computed values
+    r.fc.c1.evidence=`Found ${m.entityCount} specific ${m.entityCount===1?'entity':'entities'}${m.entityExamples.length?': '+m.entityExamples.join(', ')+'.':'.'}${m.entityCount<5?' Aim for 5 or more.':''}`;
+    r.seo.c3.evidence=`${m.wordTotal} words on the page.${m.wordTotal<200?' Aim for 200+ for better search coverage.':''}`;
+    r.ux.c1.evidence=`Average sentence length is ${m.avgLen} words. Flesch reading ease: ${m.fleschClamped}/100${m.fleschClamped<60?' — aim for 60+ (shorter sentences help)':''}.`;
+    _detectedType='';
+    r.geo.total=Math.min(100,(r.geo.c1?.pts||0)+(r.geo.c2?.pts||0)+(r.geo.c3?.pts||0));
+    r.seo.total=Math.min(100,(r.seo.c1?.pts||0)+(r.seo.c2?.pts||0)+(r.seo.c3?.pts||0));
+    r.ux.total=Math.min(100,(r.ux.c1?.pts||0)+(r.ux.c2?.pts||0)+(r.ux.c3?.pts||0));
+    r.fc.total=Math.min(100,(r.fc.c1?.pts||0)+(r.fc.c2?.pts||0));
+    document.getElementById('st').textContent='';
+    renderResults(r,txt);
+    const rw=(r.rewrite||'').trim();
+    document.getElementById('rw').textContent=rw||'No rewrite generated — please try again.';
+    document.getElementById('rw-foot').textContent='1 API call · Paste the rewrite back in to check the improvement.';
+    window._rw=rw;
+  }catch(e){
+    document.getElementById('st').textContent='Error: '+e.message;
+    console.error(e);
+  }
+  btn.disabled=false;
+}
+
+function feedback(vote,btn){
+  document.querySelectorAll('.fb-btn').forEach(b=>b.disabled=true);
+  btn.classList.add('voted');
+  document.getElementById('fb-ty').style.display='inline';
+  const url=vote==='up'
+    ?'https://docs.google.com/forms/d/e/1FAIpQLScT-3d2bZSOMQO1MJN8-MYJHziMF9KK0UU4dSky1qCWOxkTvw/viewform?usp=pp_url&entry.1964171035=Yes'
+    :'https://docs.google.com/forms/d/e/1FAIpQLScT-3d2bZSOMQO1MJN8-MYJHziMF9KK0UU4dSky1qCWOxkTvw/viewform?usp=pp_url&entry.1964171035=No';
+  window.open(url,'_blank');
+}
+
+function copyRw(){
+  const t=window._rw||document.getElementById('rw')?.textContent||'';
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=event.target;const o=b.textContent;
+    b.textContent='Copied!';setTimeout(()=>b.textContent=o,1800);
+  });
+}
+</script>
+</body>
+</html>
