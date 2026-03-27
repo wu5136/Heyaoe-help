@@ -1,92 +1,99 @@
-# Content Scorer
+# AI Content Scorer — Free content quality tool for small shops
 
-A free tool for small store owners and e-commerce writers to check if their product and category page text can be found by AI search engines like ChatGPT, Google AI Overviews, and Perplexity.
+A free, single-file tool that scores your product or category page content for AI visibility and search quality signals. No signup, no backend, no data stored.
 
-No signup. No monthly fee. Paste your text, get a score and a fixed version.
-
----
-
-## Who this is for
-
-- You run a small online store and write your own product descriptions
-- You manage a shop's website but don't have an SEO team
-- You want to know why competitors show up in AI search and you don't
+**Live tool:** [wu5136.github.io/Heyaoe-help/category-scorer-v20.html](https://wu5136.github.io/Heyaoe-help/category-scorer-v20.html)
 
 ---
 
-## What it scores
+## What it does
 
-**AI Visibility** — counts how many sentences in your text can be directly quoted by an AI engine as an answer. A sentence qualifies if it contains a specific fact (a number, size, material, or measurement) and makes sense on its own.
+Paste any product page, category page, or buying guide text. The tool scores it across four dimensions:
 
-**Search Ranking** — checks whether your keyword appears near the top, whether key product details are covered, and whether there's enough text on the page.
+| Dimension | What it measures |
+|---|---|
+| **AI Visibility** | How likely AI engines (ChatGPT, Google AI Overviews, Perplexity) are to quote your page as a direct answer |
+| **Search Ranking signals** | Whether your content has the right words and structure for Google to understand it |
+| **Easy to Read** | Whether real customers can quickly understand what you're selling and what to do next |
+| **Trustworthy Facts** | Whether your content uses specific numbers and details, or vague marketing language |
 
-**Easy to Read** — checks sentence length, whether you tell the customer what to do next, and whether any technical terms are left unexplained.
-
-**Trustworthy Facts** — counts specific verifiable details and flags empty marketing words like "best", "amazing", or "premium" used without supporting data.
+**Important:** This tool scores your *content quality* — not your actual search ranking. Rankings depend on many factors outside your content (domain authority, backlinks, site speed) that this tool cannot measure.
 
 ---
 
-## Does this actually work?
+## What's honest about this tool
 
-A brake maintenance guide that scored 86 on AI Visibility was confirmed to appear in Google AI Overviews. The guide had 6+ independently quotable sentences covering multiple question types (how to check, how often, what measurements to look for). The scoring logic directly maps to what AI engines extract.
-
-A product selector page with zero specific facts scored 6 on AI Visibility and was not appearing in AI search. Adding three sentences with concrete specs (receiver size, weight rating, install time) was the recommended fix.
-
-The scoring is not a guarantee. It is a signal — high AI Visibility means your text gives AI engines something quotable. Low AI Visibility means there is nothing concrete to quote.
+- **AI Visibility scores correlate with citation likelihood** — we validated this against real content. A brake maintenance guide scoring 86 appeared in Google AI Overviews; a vague product page scoring 6 did not. Correlation, not guarantee.
+- **Search Ranking scores reflect content signals only** — a page can have a low content score and still rank highly due to domain authority (see: large established sites). This score is about what you can control: the words on your page.
+- **Free scores use a shared API key** — limited to 5 per browser session. After that, you can add your own Anthropic API key.
 
 ---
 
 ## How to use
 
-1. Get a free Anthropic API key at [console.anthropic.com](https://console.anthropic.com/settings/keys). New accounts include enough free credit to run hundreds of scores.
-2. Open `index.html` in any browser.
-3. Enter your API key, your main keyword, and paste your text.
-4. Click **Score my content**.
+### Option A — Use the hosted version (easiest)
+Just open the link above. No setup needed.
 
-The tool makes one API call per score. Each call costs roughly $0.01–0.02 USD using Claude Sonnet.
+### Option B — Run your own copy
 
----
+1. Download `category-scorer-v20.html`
+2. Open it in any browser — works locally or hosted
 
-## What you get
-
-- A score out of 100 for each dimension
-- Inline highlights on your original text showing exactly which sentences are problems and why
-- Plain-language fix suggestions for each failing check
-- A rewritten version you can copy and use immediately
-- Each scoring check links to its public source (Google Search Central, research studies, or foundational documentation)
+No installation, no dependencies, no server needed.
 
 ---
 
-## Scoring sources
+## Cost
 
-Every check is based on publicly documented standards:
+The tool uses the Anthropic API (Claude Haiku model).
 
-| Dimension         | Sources                                                                                                                    |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| AI Visibility     | Google Search Central — AI Features (Dec 2025) · BrightEdge AI Overviews Study (2025) · Google Passage Indexing (Oct 2020) |
-| Search Ranking    | Google Search Essentials · Google BERT (Oct 2019) · Ahrefs Content Length & Rankings study                                 |
-| Easy to Read      | Flesch-Kincaid readability (1975) · Nielsen Norman Group · Plain Language Action Network                                   |
-| Trustworthy Facts | Google E-E-A-T guidelines (2025) · SearchAtlas AEO study (2025)                                                            |
+| Who | Cost per score |
+|---|---|
+| Using the free demo (first 5 scores) | Free |
+| Using your own Anthropic API key | ~$0.02–0.04 per score |
 
----
+A new Anthropic account comes with free credit — enough for 50–100+ scores before you need to add payment.
 
-## What this tool does not do
-
-- It does not track whether your page is indexed by Google
-- It does not check your site's technical SEO (page speed, mobile, structured data)
-- It does not monitor whether you are currently appearing in AI search
-- It is not a replacement for a professional SEO audit
-
-For brand-level AI monitoring, see tools like [Profound](https://www.tryprofound.com) or [Peec](https://peec.ai). This tool focuses on the content itself.
+> **Previous versions of this README stated ~$0.01 per score.** That was based on the Sonnet model with a longer prompt. The current version uses Haiku with an optimised prompt, which costs approximately $0.02–0.04 per score depending on content length.
 
 ---
 
-## Running locally
+## Privacy
 
-No build step required. Open `index.html` directly in Chrome, Firefox, or Safari. Your API key is sent directly from your browser to Anthropic and is never stored anywhere.
+- 100% runs in your browser
+- Your text is sent only to Anthropic to generate the score — not to us
+- Your API key is never stored anywhere
+- No analytics, no tracking, no cookies
+
+---
+
+## Scoring methodology
+
+Hard metrics (word count, sentence length, keyword position, entity count, Flesch reading ease) are computed locally in JavaScript before the API call. The AI model handles only semantic judgment — it cannot override the pre-computed numbers.
+
+Scoring is based on publicly documented standards:
+
+- **Official:** Google Search Central, Google E-E-A-T guidelines, Plain Language Action Network
+- **Research:** BrightEdge AI Overviews Study 2025, Ahrefs content research, Moz on-page SEO
+- **Background:** Google BERT, Google Passage Indexing, schema.org
+
+---
+
+## Limitations
+
+- Scores your content text only — not your full page (images, structured data, page speed are not evaluated)
+- English and Traditional Chinese supported; other languages may produce inconsistent results
+- AI scoring is non-deterministic — the same content may score slightly differently on repeat runs
+- Does not evaluate domain authority, backlinks, or any off-page SEO factors
+
+---
+
+## Contributing / Feedback
+
+This is an open-source tool built for small shop owners and content writers who don't have an SEO team. If you have feedback, use the 👍 / 👎 buttons inside the tool, or open a GitHub issue.
 
 ---
 
 ## License
 
-MIT. Free to use, modify, and share.
+MIT — free to use, modify, and share.

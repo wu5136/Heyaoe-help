@@ -295,13 +295,37 @@ button.sm:hover{border-color:var(--text);color:var(--text)}
 .fb-btn.voted{border-color:var(--green);background:var(--green-bg);cursor:default}
 .feedback-ty{font-size:14px;color:var(--green);font-weight:600;display:none}
 
+/* ── SCORE ROW — 4 horizontal cards ─────────────────────── */
+.sc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.sc-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.sc-card:hover{border-color:var(--text-2)}
+.sc-card.active{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
+.sc-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.sc-card-icon{font-size:18px}
+.sc-card-score{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.sc-card-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:2px}
+.sc-card-sub{font-size:11px;color:var(--text-3);margin-bottom:10px}
+.sc-card-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.sc-card-bar-fill{height:3px;border-radius:2px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+
+/* ── SIDEBAR FEEDBACK ───────────────────────────────────── */
+.sidebar-feedback{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;margin-top:12px}
+.sidebar-feedback-q{font-size:13px;color:var(--text-2);margin-bottom:10px;line-height:1.5}
+.sidebar-feedback-btns{display:flex;gap:8px}
+
+/* ── LOADING TIPS CAROUSEL ──────────────────────────────── */
+.tips-carousel{margin-top:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);min-height:64px;display:none}
+.tips-carousel.visible{display:block}
+.tips-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.tips-text{font-size:14px;color:var(--text-2);line-height:1.6;transition:opacity .4s}
+.tips-text.fade{opacity:0}
+
 /* ── RESPONSIVE ─────────────────────────────────────────── */
 @media(max-width:680px){
   .row2,.dim-cards,.type-options{grid-template-columns:1fr}
+  .sc-row{grid-template-columns:repeat(2,1fr)}
   .results-layout{grid-template-columns:1fr}
   .sidebar{position:static}
-  .sc-stack{flex-direction:row;flex-wrap:wrap}
-  .sc{flex:1;min-width:140px}
   h1{font-size:24px}
   .hd-top{flex-direction:column}
   .tip-box{left:auto;right:0;transform:none}
@@ -409,16 +433,12 @@ button.sm:hover{border-color:var(--text);color:var(--text)}
   <span class="st" id="st"></span>
 </div>
 
-<div id="out"></div>
-
-<div class="feedback-bar">
-  <span class="feedback-q" data-i18n="fbQ">Was this scoring helpful for your content?</span>
-  <div class="feedback-btns">
-    <button class="fb-btn" onclick="feedback('up',this)" title="Yes, helpful">👍</button>
-    <button class="fb-btn" onclick="feedback('down',this)" title="Not helpful">👎</button>
-    <span class="feedback-ty" id="fb-ty" data-i18n="fbTy">Thanks for the feedback!</span>
-  </div>
+<div class="tips-carousel" id="tips-carousel">
+  <div class="tips-label">💡 Did you know?</div>
+  <div class="tips-text" id="tips-text"></div>
 </div>
+
+<div id="out"></div>
 
 <footer class="ft">
   <span data-i18n="footer1">Free tool for small store owners and content writers</span>
@@ -476,7 +496,7 @@ let _lang='en';
 const LANG={
   en:{
     h1:'Can AI find<br><em>your store?</em>',
-    desc:'You wrote the words. But can Google AI, ChatGPT, and Perplexity actually find and quote your page? Paste any product or category text below — get a score and a fixed version in 30 seconds.',
+    desc:'Paste any product or category page text — get a content quality score in seconds. High scores correlate with better AI visibility and search signals. This tool scores your content, not your domain authority or backlinks.',
     who1:'You run a small online store and write your own product descriptions',
     who2:"You manage a shop's website content but don't have an SEO team",
     who3:"You want to know why competitors show up in AI search and you don't",
@@ -511,9 +531,9 @@ const LANG={
     geo:'AI visibility',geo_sub:'Quoted by AI',
     geo_contrast:'Gets you <strong>quoted inside ChatGPT\'s answer</strong>',
     geo_desc:'Can ChatGPT or Google AI quote your page as a direct answer when someone asks about your product?',
-    seo:'Search ranking',seo_sub:'Found on Google',
-    seo_contrast:'Gets you <strong>listed in Google\'s search results</strong>',
-    seo_desc:'Does your page have the right words and product details for Google to rank it when people search?',
+    seo:'Search ranking',seo_sub:'Content signals',
+    seo_contrast:'Helps Google <strong>understand what your page is about</strong>',
+    seo_desc:'Does your page have the right words and product details for Google to understand it? Note: this scores content quality signals — not your actual search ranking.',
     ux:'Easy to read',ux_sub:'Clear to customers',
     ux_contrast:'Helps <strong>real customers</strong> understand your page',
     ux_desc:'Can a real customer quickly understand what you\'re selling and what to do next?',
@@ -529,13 +549,13 @@ const LANG={
     ux_full:'Easy to read — can customers understand it?',
     fc_full:'Trustworthy facts — does the text back up its claims?',
     geo_tip:'When someone asks ChatGPT or Google AI about your product, it looks for sentences it can quote directly as an answer.\n\nA "quotable answer" is a sentence that: (1) contains a specific fact like a number, size, or material, and (2) makes sense on its own without other sentences around it.\n\n"Memory foam contours to body shape and reduces motion transfer" = quotable ✓\n"We are here to help you find the right product" = not quotable ✗',
-    seo_tip:'Does your page have the right signals for Google to rank it?\n\nThis checks: Is your main keyword near the top? Does the page mention sizes, materials, who it\'s for? Is there enough text?\n\nDifferent from AI visibility: SEO is about getting into the list of results. AI visibility is about being quoted as the answer.',
+    seo_tip:'Does your page have the right signals for Google to understand it?\n\nThis checks: Is your main keyword near the top? Does the page mention sizes, materials, who it\'s for? Is there enough text?\n\n⚠️ Important: this score reflects content quality signals only — not your actual search ranking. Rankings depend on many factors outside your content (domain authority, backlinks, site speed, etc.) that this tool cannot measure.',
     ux_tip:'Can a real customer quickly understand what you\'re selling and what to do next?\n\nThis checks: Are sentences short enough to scan? Is there a clear call to action? Are there unexplained technical terms?',
     fc_tip:'Does your text use real specific numbers and facts — or just vague marketing words?\n\nAI engines trust content with specific details. "fits a 60" × 80" queen mattress" beats "fits most bed sizes".\n\nWatch out for: "best in class", "premium quality", "amazing" — these don\'t help.',
   },
   zh:{
     h1:'AI 找得到<br><em>你的商店嗎？</em>',
-    desc:'你寫好了文字，但 Google AI、ChatGPT 和 Perplexity 真的能找到並引用你的頁面嗎？把你的商品或分類頁文字貼進來，30 秒得到評分和改寫版本。',
+    desc:'把你的商品或分類頁文字貼進來，幾秒鐘得到內容品質評分。高分與更好的 AI 可見度和搜尋訊號相關。這個工具評估的是你的內容品質，不是網域權重或反向連結。',
     who1:'你經營網路小商店，自己寫商品描述',
     who2:'你管理店家網站內容，但沒有 SEO 團隊',
     who3:'你想知道為什麼競爭對手出現在 AI 搜尋結果裡，而你沒有',
@@ -570,9 +590,9 @@ const LANG={
     geo:'AI 可見度',geo_sub:'被 AI 引用',
     geo_contrast:'讓 ChatGPT 的回答內容<strong>直接引用你的頁面</strong>',
     geo_desc:'當有人問 ChatGPT 或 Google AI 關於你的商品時，它能直接引用你的頁面作為答案嗎？',
-    seo:'搜尋排名',seo_sub:'出現在 Google',
-    seo_contrast:'讓你的頁面<strong>出現在 Google 搜尋結果列表</strong>',
-    seo_desc:'你的頁面有沒有正確的關鍵字和商品資訊，讓 Google 在用戶搜尋時顯示你？',
+    seo:'搜尋排名',seo_sub:'內容訊號',
+    seo_contrast:'幫助 Google <strong>理解你的頁面內容</strong>',
+    seo_desc:'你的頁面有沒有正確的關鍵字和商品資訊，讓 Google 讀懂它？注意：這個分數評估的是內容品質訊號，不是你實際的搜尋排名。',
     ux:'易讀性',ux_sub:'顧客看得懂',
     ux_contrast:'幫助<strong>真實顧客</strong>理解你的頁面',
     ux_desc:'真實的顧客能快速看懂你在賣什麼、下一步要怎麼做嗎？',
@@ -588,13 +608,64 @@ const LANG={
     ux_full:'易讀性 — 顧客能理解你的內容嗎？',
     fc_full:'可信事實 — 你的文字有沒有提供足夠的依據？',
     geo_tip:'當有人問 ChatGPT 或 Google AI 關於你的商品時，AI 會在你的頁面中尋找可以直接引用的句子。\n\n「可引用的句子」需要：(1) 包含具體事實，例如數字、尺寸或材質；(2) 單獨拿出來也能看懂，不需要上下文。\n\n「記憶泡棉貼合身體曲線，有效減少翻身干擾」= 可引用 ✓\n「我們在這裡幫你找到合適的產品」= 不可引用 ✗',
-    seo_tip:'你的頁面有沒有讓 Google 在搜尋時顯示它的正確訊號？\n\n這裡檢查：主要關鍵字是否出現在前段？頁面有沒有提到尺寸、材質、適用對象？文字是否夠長？\n\n跟 AI 可見度的差別：搜尋排名是進入搜尋結果列表，AI 可見度是直接被當作答案引用。',
+    seo_tip:'你的頁面有沒有讓 Google 讀懂它的正確訊號？\n\n這裡檢查：主要關鍵字是否出現在前段？頁面有沒有提到尺寸、材質、適用對象？文字是否夠長？\n\n⚠️ 重要說明：這個分數只評估內容品質訊號，不代表你的實際搜尋排名。排名還受到網域權重、反向連結、網站速度等很多內容以外的因素影響，這個工具無法評估這些。',
     ux_tip:'真實顧客能快速看懂你在賣什麼、下一步要怎麼做嗎？\n\n這裡檢查：句子夠不夠短、夠不夠好掃讀？有沒有明確的行動呼籲？有沒有未解釋的專業術語？',
     fc_tip:'你的文字用了真實的具體數字和事實，還是只有模糊的行銷詞彙？\n\nAI 比較信任有具體細節的內容。「適合 60×80 吋的雙人床墊」比「適合大多數尺寸」更有說服力。\n\n要注意：「最好的」、「高品質」、「完美」這類詞語沒有幫助，具體數字才有。',
   }
 };
 
 function t(key){return LANG[_lang][key]||LANG.en[key]||key;}
+
+/* ── LOADING TIPS ────────────────────────────────────────── */
+const TIPS={
+  en:[
+    'Google AI Overviews prefers sentences with specific facts — "38 × 75 inches" beats "various sizes."',
+    'Your page doesn\'t need to rank #1 to be quoted by AI — it just needs clear, specific answers.',
+    'The first 60 words of your page matter most — AI looks here first for quotable answers.',
+    'Sentences over 22 words are less likely to be quoted by AI. Shorter is better.',
+    'Words like "premium" and "best-in-class" don\'t help AI trust your content — specific numbers do.',
+    'ChatGPT and Perplexity pull answers from many sources — good content gives you a shot regardless of budget.',
+    'FAQ-style content is quoted 2–3× more often by AI than plain paragraph text.',
+    'Improving content quality is free — and it\'s the highest-ROI move for small shops without an SEO budget.',
+  ],
+  zh:[
+    'Google AI 偏好有具體數字的句子——「38 × 75 吋」比「各種尺寸」更容易被引用。',
+    '你的頁面不需要排名第一才能被 AI 引用——內容夠具體就有機會。',
+    '頁面開頭 60 個字最重要——AI 優先從這裡找答案。',
+    '句子超過 22 個字，被 AI 引用的機率會下降。短句更好。',
+    '「高品質」、「業界領先」對 AI 沒有說服力——具體數字才有。',
+    'ChatGPT 和 Perplexity 從很多來源抽取答案——內容品質好，不需要大預算也有機會。',
+    'FAQ 格式的內容被 AI 引用的機率比純段落高 2–3 倍。',
+    '改善內容品質完全免費——對沒有 SEO 預算的小商家，這是最划算的投資。',
+  ]
+};
+
+let _tipsTimer=null;
+let _tipsIdx=0;
+
+function startTips(){
+  const carousel=document.getElementById('tips-carousel');
+  const textEl=document.getElementById('tips-text');
+  if(!carousel||!textEl)return;
+  const tips=TIPS[_lang]||TIPS.en;
+  _tipsIdx=Math.floor(Math.random()*tips.length);
+  textEl.textContent=tips[_tipsIdx];
+  carousel.classList.add('visible');
+  _tipsTimer=setInterval(()=>{
+    textEl.classList.add('fade');
+    setTimeout(()=>{
+      _tipsIdx=(_tipsIdx+1)%tips.length;
+      textEl.textContent=tips[_tipsIdx];
+      textEl.classList.remove('fade');
+    },400);
+  },4000);
+}
+
+function stopTips(){
+  if(_tipsTimer){clearInterval(_tipsTimer);_tipsTimer=null;}
+  const carousel=document.getElementById('tips-carousel');
+  if(carousel)carousel.classList.remove('visible');
+}
 
 function setLang(lang){
   _lang=lang;
@@ -811,36 +882,37 @@ function switchDim(dim){
 
 function renderResults(r,origTxt){
   _origTxt=origTxt;
-  _annotations=buildAnnotations(r);
+  _annotations={};
   const dimKeys=['geo','seo','ux','fc'];
 
-  let h='<div class="results"><div class="results-layout">';
+  let h='<div class="results">';
 
-  // ── LEFT SIDEBAR ──────────────────────────────────────────
-  h+='<div class="sidebar">';
-
-  // Score cards — vertical stack
-  h+='<div class="sc-stack">';
+  // ── TOP: 4 score cards horizontal ────────────────────────
+  h+='<div class="sc-row">';
   dimKeys.forEach(k=>{
-    const t_=r[k]?.total||0;const c=col(t_);
+    const score=r[k]?.total||0;
+    const c=col(score);
     const info=DIM_INFO[k];
-    const barH=Math.round((t_/100)*36);
-    const subLabel={geo:t('geo_sub'),seo:t('seo_sub'),ux:t('ux_sub'),fc:t('fc_sub')}[k];
-    h+=`<div class="sc${k===_activeDim?' active':''}" data-dim="${k}" onclick="switchDim('${k}')">
-      <div class="sc-left">
-        <span class="sc-icon">${info.icon}</span>
-        <div class="sc-info">
-          <div class="sc-l">${t(k)}</div>
-          <div class="sc-name">${subLabel}</div>
-        </div>
+    const active=k===_activeDim;
+    h+=`<div class="sc-card${active?' active':''}" data-dim="${k}" onclick="switchDim('${k}')">
+      <div class="sc-card-top">
+        <span class="sc-card-icon">${info.icon}</span>
+        <span class="sc-card-score" style="color:${c}">${score}</span>
       </div>
-      <div class="sc-n" style="color:${c}">${t_}</div>
-      <div class="sc-bar-v"><div class="sc-bar-fill" style="height:${barH}px;margin-top:${36-barH}px;background:${c}"></div></div>
+      <div class="sc-card-label">${t(k)}</div>
+      <div class="sc-card-sub">${{geo:t('geo_sub'),seo:t('seo_sub'),ux:t('ux_sub'),fc:t('fc_sub')}[k]}</div>
+      <div class="sc-card-bar"><div class="sc-card-bar-fill" style="width:${score}%;background:${c}"></div></div>
     </div>`;
   });
   h+='</div>';
 
-  // Top 3 in sidebar
+  // ── BOTTOM: sidebar + detail ──────────────────────────────
+  h+='<div class="results-layout">';
+
+  // LEFT SIDEBAR
+  h+='<div class="sidebar">';
+
+  // Top 3
   if(r.top3?.filter(Boolean).length){
     h+=`<div class="sidebar-top3"><div class="sidebar-top3-t">${t('top3title')}</div>`;
     r.top3.filter(Boolean).forEach((item,i)=>{
@@ -848,60 +920,37 @@ function renderResults(r,origTxt){
     });
     h+='</div>';
   }
-  // Score band legend in sidebar
+
+  // Score bands
   h+=`<div class="score-bands">
     <div class="score-band"><span class="band-range band-green">80+</span><span>${t('band80')}</span></div>
     <div class="score-band"><span class="band-range band-amber">60–79</span><span>${t('band60')}</span></div>
     <div class="score-band"><span class="band-range band-red">&lt;60</span><span>${t('band40')}</span></div>
   </div>`;
 
-  h+='</div>'; // end sidebar
-
-  // ── RIGHT MAIN CONTENT ────────────────────────────────────
-  h+='<div class="main-content">';
-
-  // Annotation panel
-  const initAnns=_annotations[_activeDim]||[];
-  const {html:initHtml,unmatched:initUnmatched}=buildAnnotatedHtml(origTxt,initAnns);
-  const initFallbacks=initUnmatched.length?initUnmatched.map(a=>
-    `<div class="ann-fallback"><span class="ann-fallback-icon">↓</span><span><strong>${escHtml(a.label)}</strong> — couldn't locate this text. See check details below.</span></div>`
-  ).join(''):'';
-
-  h+=`<div class="ann-panel">
-    <div class="ann-hd">
-      <div class="ann-hd-l">
-        <span class="ann-title" id="ann-title">${DIM_INFO[_activeDim].full}</span>
-        <div class="tip-wrap">
-          <div class="tip-q">?</div>
-          <div class="tip-box" id="ann-tip-content">${DIM_INFO[_activeDim].tip}</div>
-        </div>
-      </div>
-      <span class="ann-score" id="ann-score">${r[_activeDim]?.total||0} / 100</span>
+  // Feedback in sidebar
+  h+=`<div class="sidebar-feedback">
+    <div class="sidebar-feedback-q">${t('fbQ')}</div>
+    <div class="sidebar-feedback-btns">
+      <button class="fb-btn" onclick="feedback('up',this)" title="Yes">👍</button>
+      <button class="fb-btn" onclick="feedback('down',this)" title="No">👎</button>
     </div>
-    <div class="ann-body">
-      <div id="ann-fallbacks" style="margin-bottom:${initFallbacks?'12px':'0'}">${initFallbacks}</div>
-      <div id="ann-text">${initHtml}</div>
-    </div>
-    <div class="ann-legend">
-      <div class="leg-i"><div class="leg-dot leg-fail"></div>${t('leg_fail')}</div>
-      <div class="leg-i"><div class="leg-dot leg-warn"></div>${t('leg_warn')}</div>
-      <div class="leg-i"><div class="leg-dot leg-pass"></div>${t('leg_pass')}</div>
-    </div>
+    <span class="feedback-ty" id="fb-ty">${t('fbTy')}</span>
   </div>`;
 
-  // Check detail blocks
+  h+='</div>'; // end sidebar
+
+  // RIGHT: check detail blocks
+  h+='<div class="main-content">';
   dimKeys.forEach(k=>{
     const d=r[k];if(!d)return;
-    const checks=Object.keys(d).filter(x=>x!=='total'&&x!=='quote'&&x!=='annotation_reason').map(x=>({...d[x],_k:x}));
+    const checks=Object.keys(d).filter(x=>x!=='total').map(x=>({...d[x],_k:x}));
     const info=DIM_INFO[k];
     h+=`<div class="dim dim-block" data-dim="${k}" style="display:${k===_activeDim?'block':'none'}">
       <div class="dim-hd">
         <div class="dim-hd-l">
           <span class="dim-hl">${info.full}</span>
-          <div class="tip-wrap">
-            <div class="tip-q">?</div>
-            <div class="tip-box">${escHtml(info.tip)}</div>
-          </div>
+          <div class="tip-wrap"><div class="tip-q">?</div><div class="tip-box">${escHtml(info.tip)}</div></div>
         </div>
         <span class="dim-hr">${d.total} / 100</span>
       </div>
@@ -922,18 +971,6 @@ function renderResults(r,origTxt){
     });
     h+='</div></div>';
   });
-
-  // Rewrite
-  h+=`<div class="rw">
-    <div class="rw-hd">
-      <span class="rw-hl">${t('rwTitle')}</span>
-      <button class="sm" onclick="copyRw()">${t('rwCopy')}</button>
-    </div>
-    <div class="rw-body" id="rw"><span class="spin" style="display:inline-block;margin-right:8px"></span>${t('rwGenerating')}</div>
-    <div class="rw-safety">${t('rwSafety')}</div>
-    <div class="rw-foot" id="rw-foot"></div>
-  </div>`;
-
   h+='</div>'; // end main-content
   h+='</div>'; // end results-layout
   h+='</div>'; // end results
@@ -946,7 +983,7 @@ async function callApi(apiKey,prompt){
   const res=await fetch(PROXY,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:3000,messages:[{role:'user',content:prompt}]})
   });
   if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.statusText);}
   const d=await res.json();
@@ -1029,80 +1066,61 @@ async function run(){
   const btn=document.getElementById('btn');
   btn.disabled=true;
   _activeDim='geo';
-  document.getElementById('st').innerHTML=`<span class="spin"></span><span>${t('scanning')}</span>`;
   document.getElementById('out').innerHTML='';
+  startTips();
+
+  // Show scanning status with elapsed time counter
+  let elapsed=0;
+  const stEl=document.getElementById('st');
+  stEl.innerHTML=`<span class="spin"></span><span id="st-msg">${t('scanning')} (0s)</span>`;
+  const timer=setInterval(()=>{
+    elapsed++;
+    const msg=document.getElementById('st-msg');
+    if(msg)msg.textContent=`${t('scanning')} (${elapsed}s)`;
+  },1000);
 
   // ── STEP 1: Compute hard metrics in JS (no AI needed) ────
   const m=computeMetrics(txt,kw);
 
-  const prompt=`You are an e-commerce content evaluator. The following hard metrics have already been calculated by JavaScript — do NOT recalculate them, treat them as ground truth:
+  const prompt=`E-commerce content evaluator. Use ONLY these pre-computed metrics — do not recalculate:
+KW:"${kw}" IND:"${ind}" WORDS:${m.wordTotal} AVG_LEN:${m.avgLen}w KW_FIRST50:${m.kwFirst50?'YES':'NO'} ENTITIES:${m.entityCount}(${m.entityExamples.join(',')})
 
-KEYWORD: "${kw}"
-INDUSTRY: "${ind}"
-WORD COUNT: ${m.wordTotal}
-SENTENCE COUNT: ${m.sentTotal}
-AVG SENTENCE LENGTH: ${m.avgLen} words
-SENTENCES OVER 25 WORDS: ${m.longSents}
-FLESCH READING EASE: ${m.fleschClamped} (0=very hard, 100=very easy; 60–70 is ideal)
-KEYWORD IN FIRST 50 WORDS: ${m.kwFirst50?'YES':'NO'} (appears at word ${m.kwDistWords>=0?m.kwDistWords:'not found'})
-SENTENCE DISTRIBUTION: ${m.short} short (≤12w) · ${m.medium} medium (13–22w) · ${m.long} long (>22w)
-ENTITY COUNT: ${m.entityCount} specific entities detected (${m.entityExamples.join(', ')||'none'})
+CITABLE = sentence with specific fact (number/size/material/brand) that stands alone. NOT citable if starts with "it/this/we/you" or is vague.
 
-Use these numbers directly in your scoring. Do not re-estimate them.
+SCORE these 11 checks:
+geo.c1 Citable count(40pts): 6+=40,4-5=30,3=20,2=12,1=6,0=0
+geo.c2 Citable in first 60 words(35pts): yes=35,exists elsewhere=12,none=0
+geo.c3 3+ question types covered(25pts): 3+=25,2=15,1=5,0=0
+seo.c1 KW in first 50 words(40pts): USE KW_FIRST50. YES=40,present=20,absent=0
+seo.c2 Details: size/material/who/fits/rating(30pts): round(found/5*30)
+seo.c3 Word count(30pts): USE WORDS. 200+=30,120-199=20,80-119=12,<80=0
+ux.c1 Avg sentence length(40pts): USE AVG_LEN. <=18=40,19-22=28,23-28=14,>28=0
+ux.c2 Action words(35pts): "start by/filter/choose/select/check/compare/next step"=35,absent=0
+ux.c3 No unexplained jargon(25pts): GTW/GVWR/OEM/SKU/CFM/PSI unexplained=10,else=25
+fc.c1 Entity count(50pts): USE ENTITIES. 5+=50,4=40,3=28,2=16,1=8,0=0
+fc.c2 No empty claims(50pts): best/amazing/perfect/premium/unmatched without stat: 0=50,1=30,2=15,3+=0
 
-─── AI VISIBILITY (max 100) ───────────────────────────────
-Goal: measure how many sentences AI engines can directly quote as answers to real user questions.
-A "citable answer" = a sentence that independently answers a real question, contains at least one specific fact (number, size, material, brand, time), and does NOT start with vague subjects like "it", "this", "we", "you".
+For each check provide: pts, max, pass, label(5 words max), evidence(1 short sentence), fix(1 short sentence)
+top3: 3 most impactful fixes as short plain phrases
 
-✓ Citable: "Memory foam contours to body shape and reduces motion transfer."
-✓ Citable: "A 2-inch receiver handles loads up to 3,500 lbs GTW."
-✗ Not citable: "We are here to help you find the right product."
-✗ Not citable: "The best choice depends on how you plan to use it."
-
-c1 — Citable answers count (40pts): Count ALL citable answer sentences. 6+=40,4-5=30,3=20,2=12,1=6,0=0. Label: "Sentences AI can directly quote as answers"
-c2 — Opening answer (35pts): Do the first 60 words contain at least one citable answer? Yes=35, Citable answer exists but not in opening=12, No citable answer anywhere=0. Label: "Opening has a directly quotable answer"
-c3 — Answer variety (25pts): Do citable answers cover 3+ different question types (what is it / how does it work / who is it for / what size-spec / how to install / what fits)? 3+=25,2=15,1=5,0=0. Label: "Answers cover different customer questions"
-
-─── SEARCH RANKING (max 100) ──────────────────────────────
-c1 Keyword near the top (40pts): USE PRE-COMPUTED VALUE — keyword in first 50 words=${m.kwFirst50?'YES':'NO'}. YES=40, NO but present=20, absent=0. Label: "Keyword appears near the top"
-c2 Product details covered (30pts): check (1)size/measurement (2)material/type (3)who it's for (4)what it fits (5)performance/rating. score=round((found/5)*30). Label: "Key product details covered"
-c3 Enough text (30pts): USE PRE-COMPUTED — word count=${m.wordTotal}. 200+=30,120-199=20,80-119=12,<80=0. Label: "Enough text on the page"
-
-─── EASY TO READ (max 100) ────────────────────────────────
-c1 Short sentences (40pts): USE PRE-COMPUTED — avg sentence length=${m.avgLen} words. <=18=40,19-22=28,23-28=14,>28=0. Label: "Sentences are short enough to scan"
-c2 Tells customer what to do next (35pts): "start by"/"filter by"/"choose"/"select"/"look for"/"check"/"compare"/"narrow by"/"next step" present=35,absent=0. Label: "Tells customer what to do next"
-c3 No unexplained jargon (25pts): GTW,GVWR,WDH,SAE,OEM,SKU,MSRP,CFM,RPM,PSI,BTU without plain-English explanation=10,else=25. Label: "No unexplained technical terms"
-
-─── TRUSTWORTHY FACTS (max 100) ───────────────────────────
-c1 Specific entities and details (50pts): USE PRE-COMPUTED — entity count=${m.entityCount} (${m.entityExamples.join(', ')||'none found'}). Tell user exactly how many entities were found and what they are. 5+=50,4=40,3=28,2=16,1=8,0=0. Label: "Specific numbers and product details"
-c2 No empty marketing words (50pts): count "best"/"amazing"/"perfect"/"industry-leading"/"incredible"/"world-class"/"premium"/"unmatched" without a supporting stat. 0=50,1=30,2=15,3+=0. Label: "No empty marketing words"
-
-─── REWRITE ────────────────────────────────────────────────
-Produce an improved version:
-1. Open with the single most useful citable answer about "${kw}" — a specific fact, not a welcome sentence
-2. Include 5+ citable answer sentences covering at least 3 different question types
-3. Zero empty marketing words
-4. End with a clear action directive
-5. Average sentence under 18 words, 150-220 words total
-6. Plain honest tone like a knowledgeable friend
-
-─── ANNOTATION INSTRUCTIONS ───────────────────────────────
-For each check provide pts, max, pass, label, evidence (plain language), fix (plain language), AND:
-- "start": character index in the original content where the highlight begins (integer)
-- "end": character index where it ends (integer)
-- "quote": verbatim substring as backup (in case index is wrong)
-- "annotation_reason": max 12 plain-language words
-
-CONTENT (character indices are 0-based from the start of this text):
+CONTENT:
 ${txt}
 
-Return ONLY this JSON:
-{"geo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"seo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"ux":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"fc":{"total":0,"c1":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""},"c2":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":"","start":0,"end":0,"quote":"","annotation_reason":""}},"top3":["","",""],"rewrite":""}`;
-
-  try{
+Return ONLY JSON:
+{"geo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":""}},"seo":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":""},"c2":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":""},"c3":{"pts":0,"max":30,"pass":false,"label":"","evidence":"","fix":""}},"ux":{"total":0,"c1":{"pts":0,"max":40,"pass":false,"label":"","evidence":"","fix":""},"c2":{"pts":0,"max":35,"pass":false,"label":"","evidence":"","fix":""},"c3":{"pts":0,"max":25,"pass":false,"label":"","evidence":"","fix":""}},"fc":{"total":0,"c1":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":""},"c2":{"pts":0,"max":50,"pass":false,"label":"","evidence":"","fix":""}},"top3":["","",""]}`;  try{
     const raw=await callApi(apiKey,prompt);
     const match=raw.match(/\{[\s\S]*\}/);
-    const r=JSON.parse(match?match[0]:raw);
+    let jsonStr=match?match[0]:raw;
+    // Repair truncated JSON: remove trailing incomplete property/value
+    try{JSON.parse(jsonStr);}catch(e){
+      // Strip everything after the last complete value before the error
+      jsonStr=jsonStr.replace(/,\s*"[^"]*"\s*:\s*[^,}\]]*$/,'');
+      // Close any unclosed arrays/objects
+      const opens=(jsonStr.match(/\{/g)||[]).length-(jsonStr.match(/\}/g)||[]).length;
+      const arrOpens=(jsonStr.match(/\[/g)||[]).length-(jsonStr.match(/\]/g)||[]).length;
+      jsonStr+=']'.repeat(Math.max(0,arrOpens))+'}'.repeat(Math.max(0,opens));
+    }
+    const r=JSON.parse(jsonStr);
     // Apply pre-computed metrics to override AI arithmetic
     if(m.kwFirst50){r.seo.c1.pts=40;r.seo.c1.pass=true;}
     else if(m.kwDistWords>=0){r.seo.c1.pts=20;r.seo.c1.pass=false;}
@@ -1125,15 +1143,14 @@ Return ONLY this JSON:
     r.ux.total=Math.min(100,(r.ux.c1?.pts||0)+(r.ux.c2?.pts||0)+(r.ux.c3?.pts||0));
     r.fc.total=Math.min(100,(r.fc.c1?.pts||0)+(r.fc.c2?.pts||0));
     document.getElementById('st').textContent='';
-    // Count demo usage only (not when user has their own key)
+    clearInterval(timer);
+    stopTips();
     if(!userKey){incDemoUses();}
     updateDemoUI();
     renderResults(r,txt);
-    const rw=(r.rewrite||'').trim();
-    document.getElementById('rw').textContent=rw||t('noRw');
-    document.getElementById('rw-foot').textContent=t('rwFoot');
-    window._rw=rw;
   }catch(e){
+    clearInterval(timer);
+    stopTips();
     document.getElementById('st').textContent='Error: '+e.message;
     console.error(e);
   }
