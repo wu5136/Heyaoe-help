@@ -941,14 +941,11 @@ function renderResults(r,origTxt){
 }
 
 async function callApi(apiKey,prompt){
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
+  // Calls Cloudflare Worker proxy — API key is stored securely server-side
+  const PROXY='https://ai-scorer-proxy.peggyhu0083.workers.dev';
+  const res=await fetch(PROXY,{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key':apiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:prompt}]})
   });
   if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.statusText);}
@@ -956,8 +953,9 @@ async function callApi(apiKey,prompt){
   return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
 }
 
-// ── DEMO KEY CONFIG ──────────────────────────────────────
-const DEMO_KEY='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'; // replace before publishing
+// ── DEMO CONFIG ──────────────────────────────────────────
+// API key is stored securely in Cloudflare Worker — not exposed here
+const DEMO_KEY=''; // not used — proxy handles authentication
 const DEMO_LIMIT=5;
 const DEMO_STORAGE_KEY='aiscore_demo_uses';
 
