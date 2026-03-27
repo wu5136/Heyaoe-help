@@ -267,7 +267,26 @@ button.sm:hover{border-color:var(--text);color:var(--text)}
 .ann-fallback-icon{font-size:15px;flex-shrink:0}
 .ann-no-highlights{background:var(--bg);border-radius:var(--r-sm);padding:14px 16px;font-size:15px;color:var(--text-2);text-align:center;line-height:1.6}
 
-/* ── FEEDBACK BAR ────────────────────────────────────────── */
+.dim-card-contrast{font-size:12px;color:var(--coral);font-weight:600;margin-bottom:6px;margin-top:2px}
+.privacy-note{display:flex;align-items:flex-start;gap:7px;margin-top:12px;font-size:13px;color:var(--green);line-height:1.5}
+.privacy-icon{flex-shrink:0;font-size:14px}
+.field-hint{font-size:12px;color:var(--text-3);margin-top:6px;line-height:1.5}
+
+/* ── LANGUAGE SWITCHER ──────────────────────────────────── */
+.lang-sw{display:flex;gap:2px;align-items:center}
+.lang-btn{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:3px 8px;border:1px solid var(--border);border-radius:20px;background:none;cursor:pointer;color:var(--text-2);transition:all .15s}
+.lang-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.lang-btn:hover:not(.active){border-color:var(--text-2);color:var(--text)}
+
+/* ── SCORE BAND LEGEND ──────────────────────────────────── */
+.score-bands{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
+.score-band{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+.score-band:last-child{border-bottom:none}
+.band-range{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;white-space:nowrap;min-width:36px;margin-top:1px}
+.band-green{color:var(--green)}.band-amber{color:#B87300}.band-red{color:var(--red)}
+
+/* ── REWRITE SAFETY NOTE ────────────────────────────────── */
+.rw-safety{font-size:13px;color:var(--text-2);padding:10px 20px;border-top:1px solid var(--border);background:var(--bg);line-height:1.6}
 .feedback-bar{margin-top:48px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .feedback-q{font-size:15px;color:var(--text-2)}
 .feedback-btns{display:flex;align-items:center;gap:10px}
@@ -297,23 +316,29 @@ button.sm:hover{border-color:var(--text);color:var(--text)}
 <header class="hd">
   <div class="hd-top">
     <span class="wordmark">Content Scorer</span>
-    <span class="badge">Free · No signup needed</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="lang-sw">
+        <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lang-zh" onclick="setLang('zh')">中文</button>
+      </div>
+      <span class="badge">Free · No signup needed</span>
+    </div>
   </div>
-  <h1>Can AI find<br><em>your store?</em></h1>
-  <p class="desc">You wrote the words. But can Google AI, ChatGPT, and Perplexity actually find and quote your page? Paste any product or category text below — get a score and a fixed version in 30 seconds.</p>
+  <h1 data-i18n="h1">Can AI find<br><em>your store?</em></h1>
+  <p class="desc" data-i18n="desc">You wrote the words. But can Google AI, ChatGPT, and Perplexity actually find and quote your page? Paste any product or category text below — get a score and a fixed version in 30 seconds.</p>
 
   <div class="who-box">
     <div class="who-item">
       <span class="who-check">✓</span>
-      <span>You run a small online store and write your own product descriptions</span>
+      <span data-i18n="who1">You run a small online store and write your own product descriptions</span>
     </div>
     <div class="who-item">
       <span class="who-check">✓</span>
-      <span>You manage a shop's website content but don't have an SEO team</span>
+      <span data-i18n="who2">You manage a shop's website content but don't have an SEO team</span>
     </div>
     <div class="who-item">
       <span class="who-check">✓</span>
-      <span>You want to know why competitors show up in AI search and you don't</span>
+      <span data-i18n="who3">You want to know why competitors show up in AI search and you don't</span>
     </div>
   </div>
 </header>
@@ -321,72 +346,83 @@ button.sm:hover{border-color:var(--text);color:var(--text)}
 <!-- WHAT GETS SCORED -->
 <div class="dim-cards">
   <div class="dim-card">
-    <div class="dim-card-label"><span class="dim-card-icon ic-geo">✦</span>AI visibility</div>
-    <div class="dim-card-desc">Can ChatGPT or Google AI quote your page as a direct answer when someone asks about your product?</div>
+    <div class="dim-card-label"><span class="dim-card-icon ic-geo">✦</span><span data-i18n="geo">AI visibility</span></div>
+    <div class="dim-card-contrast" data-i18n="geo_contrast">Gets you <strong>quoted inside ChatGPT's answer</strong></div>
+    <div class="dim-card-desc" data-i18n="geo_desc">Can ChatGPT or Google AI quote your page as a direct answer when someone asks about your product?</div>
   </div>
   <div class="dim-card">
-    <div class="dim-card-label"><span class="dim-card-icon ic-seo">↑</span>Search ranking</div>
-    <div class="dim-card-desc">Does your page have the right words and product details for Google to rank it when people search?</div>
+    <div class="dim-card-label"><span class="dim-card-icon ic-seo">↑</span><span data-i18n="seo">Search ranking</span></div>
+    <div class="dim-card-contrast" data-i18n="seo_contrast">Gets you <strong>listed in Google's search results</strong></div>
+    <div class="dim-card-desc" data-i18n="seo_desc">Does your page have the right words and product details for Google to rank it when people search?</div>
   </div>
   <div class="dim-card">
-    <div class="dim-card-label"><span class="dim-card-icon ic-ux">◎</span>Easy to read</div>
-    <div class="dim-card-desc">Can a real customer quickly understand what you're selling and what to do next?</div>
+    <div class="dim-card-label"><span class="dim-card-icon ic-ux">◎</span><span data-i18n="ux">Easy to read</span></div>
+    <div class="dim-card-contrast" data-i18n="ux_contrast">Helps <strong>real customers</strong> understand your page</div>
+    <div class="dim-card-desc" data-i18n="ux_desc">Can a real customer quickly understand what you're selling and what to do next?</div>
   </div>
   <div class="dim-card">
-    <div class="dim-card-label"><span class="dim-card-icon ic-fc">◈</span>Trustworthy facts</div>
-    <div class="dim-card-desc">Does your text use real numbers and specifics — or just vague claims like "high quality" and "best in class"?</div>
+    <div class="dim-card-label"><span class="dim-card-icon ic-fc">◈</span><span data-i18n="fc">Trustworthy facts</span></div>
+    <div class="dim-card-contrast" data-i18n="fc_contrast">Gives AI <strong>concrete details it can trust</strong></div>
+    <div class="dim-card-desc" data-i18n="fc_desc">Does your text use real numbers and specifics — or just vague claims like "high quality" and "best in class"?</div>
   </div>
 </div>
 
-<!-- API KEY -->
-<div class="key-box">
-  <div class="key-box-title">You need an Anthropic API key</div>
-  <p>Get a free key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>. Your key is used directly in your browser and never stored anywhere.</p>
+<!-- API KEY / DEMO BOX -->
+<div class="key-box" id="key-box">
+  <div class="key-box-title" id="key-box-title">Try it free — no account needed</div>
+  <p id="key-box-desc" style="margin-bottom:10px">You have <strong><span id="demo-remaining">5</span> free scores</strong> — no sign-up or API key required. After that, add your own free Anthropic key to keep going.</p>
+  <div id="demo-notice" style="display:none;margin-bottom:12px;padding:10px 12px;background:var(--amber-bg);border-radius:var(--r-sm);border-left:3px solid var(--amber-border)">
+    <span style="font-size:14px;color:var(--amber);font-weight:600">Your 5 free scores are used up.</span><br>
+    <span style="font-size:13px;color:var(--amber)">Add your own key below — new Anthropic accounts get free credit (≈ 125–250 scores at ~$0.04 each).</span><br>
+    <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:13px;color:var(--amber);font-weight:700;text-decoration:underline;text-underline-offset:2px">Get a free key → console.anthropic.com</a>
+  </div>
   <div class="key-row">
-    <input type="password" id="api-key" placeholder="sk-ant-api03-…" autocomplete="off">
+    <input type="password" id="api-key" placeholder="Optional — paste your own key for unlimited scores" autocomplete="off" style="font-size:13px">
     <button class="key-tog" onclick="toggleKey()">Show</button>
   </div>
+  <div class="privacy-note" style="margin-top:10px"><span class="privacy-icon">🔒</span> <span data-i18n="privacy">100% runs in your browser. Your text and API key are never sent to us or stored anywhere — only to Anthropic to generate your score.</span></div>
 </div>
 
 <!-- FORM -->
 <div class="row2">
   <div class="field">
-    <label class="lbl">Main keyword for this page</label>
-    <input type="text" id="kw" placeholder="e.g. mattress, dog harness, standing desk">
+    <label class="lbl" data-i18n="keyLabel">Main keyword for this page</label>
+    <input type="text" id="kw" data-i18n="keyPlaceholder" placeholder="e.g. mattress, dog harness, standing desk">
+    <div class="field-hint" data-i18n="keyHint">Use the core product name customers search for — not a long phrase. "memory foam mattress" ✓ &nbsp; "best affordable mattress for back pain 2024" ✗</div>
   </div>
   <div class="field">
-    <label class="lbl">Your industry <span class="lbl-hint">(optional)</span></label>
+    <label class="lbl"><span data-i18n="indLabel">Your industry</span> <span class="lbl-hint">(optional)</span></label>
     <input type="text" id="ind" placeholder="e.g. pet supplies, home furniture">
   </div>
 </div>
 <div class="field">
-  <label class="lbl">Your product or category page text</label>
-  <textarea id="txt" rows="9" placeholder="Paste the main text from your product page, category page, or buying guide. Works best with 100–400 words.&#10;&#10;Not sure what to paste? Try the intro paragraph from any category page on your store — the text that appears before the product grid."></textarea>
+  <label class="lbl" data-i18n="txtLabel">Your product or category page text</label>
+  <textarea id="txt" rows="9" data-i18n="txtPlaceholder" placeholder="Paste the main text from your product page, category page, or buying guide. Works best with 100–400 words.&#10;&#10;Not sure what to paste? Try the intro paragraph from any category page on your store — the text that appears before the product grid."></textarea>
   <div class="field-foot">
-    <span class="foot-hint">Works with product pages, category pages, and buying guides</span>
-    <button class="demo-btn" onclick="loadDemo()">See an example →</button>
+    <span class="foot-hint" data-i18n="txtHint">Works with product pages, category pages, and buying guides</span>
+    <button class="demo-btn" onclick="loadDemo()" data-i18n="demoBtn">See an example →</button>
   </div>
 </div>
 
 <div class="btn-row">
-  <button class="go" id="btn" onclick="run()">Score my content</button>
+  <button class="go" id="btn" onclick="run()" data-i18n="btnScore">Score my content</button>
   <span class="st" id="st"></span>
 </div>
 
 <div id="out"></div>
 
 <div class="feedback-bar">
-  <span class="feedback-q">Was this scoring helpful for your content?</span>
+  <span class="feedback-q" data-i18n="fbQ">Was this scoring helpful for your content?</span>
   <div class="feedback-btns">
     <button class="fb-btn" onclick="feedback('up',this)" title="Yes, helpful">👍</button>
     <button class="fb-btn" onclick="feedback('down',this)" title="Not helpful">👎</button>
-    <span class="feedback-ty" id="fb-ty">Thanks for the feedback!</span>
+    <span class="feedback-ty" id="fb-ty" data-i18n="fbTy">Thanks for the feedback!</span>
   </div>
 </div>
 
 <footer class="ft">
-  <span>Free tool for small store owners and content writers</span>
-  <span>Scoring based on publicly documented Google &amp; research standards — <strong style="color:var(--text-2)">Official</strong> · <strong style="color:var(--text-2)">Research</strong> · <strong style="color:var(--text-2)">Background</strong></span>
+  <span data-i18n="footer1">Free tool for small store owners and content writers</span>
+  <span data-i18n="footer2">Scoring based on publicly documented Google &amp; research standards — <strong style="color:var(--text-2)">Official</strong> · <strong style="color:var(--text-2)">Research</strong> · <strong style="color:var(--text-2)">Background</strong></span>
 </footer>
 </div>
 
@@ -414,30 +450,10 @@ const SOURCES={
 };
 
 const DIM_INFO={
-  geo:{
-    label:'AI visibility',
-    icon:'✦',
-    full:'AI visibility — can AI quote your page?',
-    tip:'When someone asks ChatGPT or Google AI about your product, it looks for sentences it can quote directly as an answer.\n\nA "quotable answer" is a sentence that: (1) contains a specific fact like a number, size, or material, and (2) makes sense on its own without needing other sentences around it.\n\n"Memory foam contours to body shape and reduces motion transfer" = quotable ✓\n"We are here to help you find the right product" = not quotable ✗\n\nThis score tells you how many of those quotable answers your page has.'
-  },
-  seo:{
-    label:'Search ranking',
-    icon:'↑',
-    full:'Search ranking — does Google understand your page?',
-    tip:'Does your page have the right signals for Google to rank it when people search for your product?\n\nThis checks: Is your main keyword near the top? Does the page mention sizes, materials, who it\'s for? Is there enough text?\n\nDifferent from AI visibility: SEO is about getting into the list of results. AI visibility is about being quoted as the answer.'
-  },
-  ux:{
-    label:'Easy to read',
-    icon:'◎',
-    full:'Easy to read — can customers understand it?',
-    tip:'Can a real customer quickly understand what you\'re selling and what to do next?\n\nThis checks: Are sentences short enough to scan? Is there a clear call to action? Are there any unexplained technical terms?\n\nDifferent from AI visibility: AI visibility is about machines parsing your text. Readability is about humans understanding it.'
-  },
-  fc:{
-    label:'Trustworthy facts',
-    icon:'◈',
-    full:'Trustworthy facts — does your text back up its claims?',
-    tip:'Does your text use real, specific numbers and facts — or just vague marketing words?\n\nAI engines trust content with specific details: "fits a 60" × 80" queen mattress" beats "fits most bed sizes". Numbers, measurements, and material names make your content more credible.\n\nWatch out for: "best in class", "premium quality", "amazing" — these don\'t help. Specific facts do.'
-  }
+  geo:{icon:'✦',get label(){return t('geo')},get full(){return t('geo_full')},get tip(){return t('geo_tip')}},
+  seo:{icon:'↑',get label(){return t('seo')},get full(){return t('seo_full')},get tip(){return t('seo_tip')}},
+  ux:{icon:'◎',get label(){return t('ux')},get full(){return t('ux_full')},get tip(){return t('ux_tip')}},
+  fc:{icon:'◈',get label(){return t('fc')},get full(){return t('fc_full')},get tip(){return t('fc_tip')}}
 };
 
 const DEMO_KW='mattress';
@@ -454,6 +470,149 @@ let _activeDim='geo';
 let _annotations={};
 let _origTxt='';
 let _detectedType='category';
+let _lang='en';
+
+/* ── LANGUAGE STRINGS ───────────────────────────────────── */
+const LANG={
+  en:{
+    h1:'Can AI find<br><em>your store?</em>',
+    desc:'You wrote the words. But can Google AI, ChatGPT, and Perplexity actually find and quote your page? Paste any product or category text below — get a score and a fixed version in 30 seconds.',
+    who1:'You run a small online store and write your own product descriptions',
+    who2:"You manage a shop's website content but don't have an SEO team",
+    who3:"You want to know why competitors show up in AI search and you don't",
+    keyLabel:'Main keyword for this page',
+    keyHint:'Use the core product name customers search for — not a long phrase. "memory foam mattress" ✓ &nbsp; "best affordable mattress for back pain 2024" ✗',
+    keyPlaceholder:'e.g. mattress, dog harness, standing desk',
+    indLabel:'Your industry',
+    txtLabel:'Your product or category page text',
+    txtPlaceholder:'Paste the main text from your product page, category page, or buying guide. Works best with 100–400 words.\n\nNot sure what to paste? Try the intro paragraph from any category page on your store — the text that appears before the product grid.',
+    txtHint:'Works with product pages, category pages, and buying guides',
+    demoBtn:'See an example →',
+    btnScore:'Score my content',
+    apiTitle:'You need an Anthropic API key',
+    apiDesc:'Get a free key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>. New accounts get $5 USD in credit — enough for around 500 scores at roughly $0.01 per score.',
+    privacy:'100% runs in your browser. Your text and API key are never sent to us or stored anywhere — only to Anthropic to generate your score.',
+    scanning:'Analysing…',
+    band80:'<strong>Great.</strong> AI is very likely to quote your page.',
+    band60:'<strong>Good.</strong> A few fixes will make a real difference.',
+    band40:'<strong>Needs work.</strong> Start with AI Visibility — it has the biggest impact.',
+    rwSafety:'💡 <strong>This is a structural template, not a final draft.</strong> Keep the facts and sentence structure — but rewrite it in your own brand voice and story before publishing. Google does not penalise well-written AI-assisted content.',
+    rwTitle:'Improved version — ready to copy',
+    rwCopy:'Copy text',
+    rwFoot:'1 API call · Paste the rewrite back in to check the improvement.',
+    fbQ:'Was this scoring helpful for your content?',
+    fbTy:'Thanks for the feedback!',
+    noRw:'No rewrite generated — please try again.',
+    errKey:'Please enter your Anthropic API key.',
+    errTxt:'Please paste your content.',
+    errKw:'Please enter your main keyword.',
+    top3title:'Top 3 priorities',
+    rwGenerating:'Generating improved version…',
+    geo:'AI visibility',geo_sub:'Quoted by AI',
+    geo_contrast:'Gets you <strong>quoted inside ChatGPT\'s answer</strong>',
+    geo_desc:'Can ChatGPT or Google AI quote your page as a direct answer when someone asks about your product?',
+    seo:'Search ranking',seo_sub:'Found on Google',
+    seo_contrast:'Gets you <strong>listed in Google\'s search results</strong>',
+    seo_desc:'Does your page have the right words and product details for Google to rank it when people search?',
+    ux:'Easy to read',ux_sub:'Clear to customers',
+    ux_contrast:'Helps <strong>real customers</strong> understand your page',
+    ux_desc:'Can a real customer quickly understand what you\'re selling and what to do next?',
+    fc:'Trustworthy facts',fc_sub:'AI trusts it',
+    fc_contrast:'Gives AI <strong>concrete details it can trust</strong>',
+    fc_desc:'Does your text use real numbers and specifics — or just vague claims like "high quality" and "best in class"?',
+    leg_fail:'Needs fixing',leg_warn:'Could improve',leg_pass:'Doing well',
+    footer1:'Free tool for small store owners and content writers',
+    footer2:'Scoring based on publicly documented Google &amp; research standards — <strong style="color:var(--text-2)">Official</strong> · <strong style="color:var(--text-2)">Research</strong> · <strong style="color:var(--text-2)">Background</strong>',
+    ann_score_suffix:' / 100',
+    geo_full:'AI visibility — can AI quote your page?',
+    seo_full:'Search ranking — does Google understand your page?',
+    ux_full:'Easy to read — can customers understand it?',
+    fc_full:'Trustworthy facts — does the text back up its claims?',
+    geo_tip:'When someone asks ChatGPT or Google AI about your product, it looks for sentences it can quote directly as an answer.\n\nA "quotable answer" is a sentence that: (1) contains a specific fact like a number, size, or material, and (2) makes sense on its own without other sentences around it.\n\n"Memory foam contours to body shape and reduces motion transfer" = quotable ✓\n"We are here to help you find the right product" = not quotable ✗',
+    seo_tip:'Does your page have the right signals for Google to rank it?\n\nThis checks: Is your main keyword near the top? Does the page mention sizes, materials, who it\'s for? Is there enough text?\n\nDifferent from AI visibility: SEO is about getting into the list of results. AI visibility is about being quoted as the answer.',
+    ux_tip:'Can a real customer quickly understand what you\'re selling and what to do next?\n\nThis checks: Are sentences short enough to scan? Is there a clear call to action? Are there unexplained technical terms?',
+    fc_tip:'Does your text use real specific numbers and facts — or just vague marketing words?\n\nAI engines trust content with specific details. "fits a 60" × 80" queen mattress" beats "fits most bed sizes".\n\nWatch out for: "best in class", "premium quality", "amazing" — these don\'t help.',
+  },
+  zh:{
+    h1:'AI 找得到<br><em>你的商店嗎？</em>',
+    desc:'你寫好了文字，但 Google AI、ChatGPT 和 Perplexity 真的能找到並引用你的頁面嗎？把你的商品或分類頁文字貼進來，30 秒得到評分和改寫版本。',
+    who1:'你經營網路小商店，自己寫商品描述',
+    who2:'你管理店家網站內容，但沒有 SEO 團隊',
+    who3:'你想知道為什麼競爭對手出現在 AI 搜尋結果裡，而你沒有',
+    keyLabel:'這個頁面的主要關鍵字',
+    keyHint:'填顧客最常搜尋的核心商品名稱，不要填長句。「記憶泡棉床墊」✓ &nbsp;「2024最推薦便宜護背床墊」✗',
+    keyPlaceholder:'例如：床墊、寵物牽繩、站立式辦公桌',
+    indLabel:'你的產業',
+    txtLabel:'你的商品或分類頁文字',
+    txtPlaceholder:'貼上商品頁、分類頁或購買指南的主要文字。100–400 字效果最好。\n\n不知道貼哪段？試試你商店分類頁最上方的介紹段落——商品列表之前的那段文字。',
+    txtHint:'適用商品頁、分類頁和購買指南',
+    demoBtn:'看範例 →',
+    btnScore:'開始評分',
+    apiTitle:'你需要一個 Anthropic API 金鑰',
+    apiDesc:'免費申請：<a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>。新帳號有 $5 美金額度，每次評分約 $0.01，大約可以跑 500 次。',
+    privacy:'100% 在你的瀏覽器本地運行。你的文字和 API 金鑰不會傳送給我們或儲存在任何地方——只會傳給 Anthropic 來產生評分。',
+    scanning:'分析中…',
+    band80:'<strong>優異！</strong>AI 極大機率會引用你的頁面。',
+    band60:'<strong>良好。</strong>補足幾個項目就能明顯提升。',
+    band40:'<strong>需要改進。</strong>先從「AI 可見度」下手，影響最大。',
+    rwSafety:'💡 <strong>這是結構範本，不是最終稿。</strong>保留事實和句子架構——但在發布前用你的品牌語氣和故事改寫。Google 不會懲罰寫得好的 AI 輔助內容。',
+    rwTitle:'改寫版本 — 可以直接複製',
+    rwCopy:'複製文字',
+    rwFoot:'1 次 API 呼叫 · 把改寫版本貼回來再評一次，確認有進步。',
+    fbQ:'這個評分對你的內容有幫助嗎？',
+    fbTy:'感謝回饋！',
+    noRw:'未產生改寫版本，請再試一次。',
+    errKey:'請輸入你的 Anthropic API 金鑰。',
+    errTxt:'請貼上你的內容文字。',
+    errKw:'請輸入主要關鍵字。',
+    top3title:'優先修改的三件事',
+    rwGenerating:'產生改寫版本中…',
+    geo:'AI 可見度',geo_sub:'被 AI 引用',
+    geo_contrast:'讓 ChatGPT 的回答內容<strong>直接引用你的頁面</strong>',
+    geo_desc:'當有人問 ChatGPT 或 Google AI 關於你的商品時，它能直接引用你的頁面作為答案嗎？',
+    seo:'搜尋排名',seo_sub:'出現在 Google',
+    seo_contrast:'讓你的頁面<strong>出現在 Google 搜尋結果列表</strong>',
+    seo_desc:'你的頁面有沒有正確的關鍵字和商品資訊，讓 Google 在用戶搜尋時顯示你？',
+    ux:'易讀性',ux_sub:'顧客看得懂',
+    ux_contrast:'幫助<strong>真實顧客</strong>理解你的頁面',
+    ux_desc:'真實的顧客能快速看懂你在賣什麼、下一步要怎麼做嗎？',
+    fc:'可信事實',fc_sub:'AI 信任你',
+    fc_contrast:'給 AI <strong>它能信任的具體資訊</strong>',
+    fc_desc:'你的文字用了真實的數字和規格，還是只有「高品質」、「最好的」這類模糊說法？',
+    leg_fail:'需要修正',leg_warn:'可以改善',leg_pass:'表現良好',
+    footer1:'給小商家和內容寫手的免費工具',
+    footer2:'評分標準來自 Google 及公開研究文件 — <strong style="color:var(--text-2)">官方文件</strong> · <strong style="color:var(--text-2)">研究報告</strong> · <strong style="color:var(--text-2)">背景資料</strong>',
+    ann_score_suffix:' / 100',
+    geo_full:'AI 可見度 — AI 能引用你的頁面嗎？',
+    seo_full:'搜尋排名 — Google 讀得懂你的頁面嗎？',
+    ux_full:'易讀性 — 顧客能理解你的內容嗎？',
+    fc_full:'可信事實 — 你的文字有沒有提供足夠的依據？',
+    geo_tip:'當有人問 ChatGPT 或 Google AI 關於你的商品時，AI 會在你的頁面中尋找可以直接引用的句子。\n\n「可引用的句子」需要：(1) 包含具體事實，例如數字、尺寸或材質；(2) 單獨拿出來也能看懂，不需要上下文。\n\n「記憶泡棉貼合身體曲線，有效減少翻身干擾」= 可引用 ✓\n「我們在這裡幫你找到合適的產品」= 不可引用 ✗',
+    seo_tip:'你的頁面有沒有讓 Google 在搜尋時顯示它的正確訊號？\n\n這裡檢查：主要關鍵字是否出現在前段？頁面有沒有提到尺寸、材質、適用對象？文字是否夠長？\n\n跟 AI 可見度的差別：搜尋排名是進入搜尋結果列表，AI 可見度是直接被當作答案引用。',
+    ux_tip:'真實顧客能快速看懂你在賣什麼、下一步要怎麼做嗎？\n\n這裡檢查：句子夠不夠短、夠不夠好掃讀？有沒有明確的行動呼籲？有沒有未解釋的專業術語？',
+    fc_tip:'你的文字用了真實的具體數字和事實，還是只有模糊的行銷詞彙？\n\nAI 比較信任有具體細節的內容。「適合 60×80 吋的雙人床墊」比「適合大多數尺寸」更有說服力。\n\n要注意：「最好的」、「高品質」、「完美」這類詞語沒有幫助，具體數字才有。',
+  }
+};
+
+function t(key){return LANG[_lang][key]||LANG.en[key]||key;}
+
+function setLang(lang){
+  _lang=lang;
+  document.getElementById('lang-en').classList.toggle('active',lang==='en');
+  document.getElementById('lang-zh').classList.toggle('active',lang==='zh');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'){el.placeholder=t(key);}
+    else{el.innerHTML=t(key);}
+  });
+  const h1=document.querySelector('h1');
+  if(h1)h1.innerHTML=t('h1');
+  // Re-render results panel if it exists
+  if(_origTxt&&document.getElementById('ann-title')){
+    switchDim(_activeDim);
+  }
+  updateDemoUI();
+}
 
 function loadDemo(){
   document.getElementById('kw').value=DEMO_KW;
@@ -484,14 +643,44 @@ function findQuote(text,quote){
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 /* ── JS DATA LAYER — computed before AI call ─────────────── */
+function isChinese(txt){
+  const cjk=(txt.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g)||[]).length;
+  return cjk/txt.length>0.1;
+}
+
 function computeMetrics(txt,kw){
-  // Split sentences on . ! ? followed by space or end, skip very short fragments
+  const zh=isChinese(txt);
+
+  if(zh){
+    // Chinese: split on Chinese sentence-ending punctuation
+    const sents=txt.split(/(?<=[。！？])\s*/).map(s=>s.trim()).filter(s=>s.length>=8);
+    const charCounts=sents.map(s=>s.replace(/\s/g,'').length);
+    const avgLen=charCounts.length?Math.round(charCounts.reduce((a,b)=>a+b,0)/charCounts.length):0;
+    const longSents=charCounts.filter(n=>n>45).length;
+    // For Chinese, readability proxy = avg chars per sentence (target: ≤30)
+    const fleschClamped=Math.min(100,Math.max(0,Math.round(100-(avgLen-15)*2)));
+    const totalChars=txt.replace(/\s/g,'').length;
+    // Keyword (Chinese): check if kw appears in first ~100 chars
+    const kwIdx=txt.indexOf(kw);
+    const kwFirst50=kwIdx>=0&&kwIdx<=100;
+    const kwDistWords=kwIdx>=0?txt.slice(0,kwIdx).replace(/\s/g,'').length:-1;
+    const short=charCounts.filter(n=>n<=20).length;
+    const medium=charCounts.filter(n=>n>20&&n<=40).length;
+    const long=charCounts.filter(n=>n>40).length;
+    // Entity: numbers + measurements + brand names (CJK context)
+    const entities=(txt.match(/\d+[\w%°㎝㎞㎏]*|[A-Z][A-Za-z0-9]+|\d+[\s-]?(?:公分|公斤|毫米|英寸|吋|磅)/g)||[]);
+    const entityCount=entities.length;
+    const entityExamples=[...new Set(entities.map(e=>e.trim()))].slice(0,5);
+    // Word total proxy = char count / 2 for compatibility with scoring thresholds
+    const wordTotal=Math.round(totalChars/1.5);
+    return{avgLen,longSents,fleschClamped,kwFirst50,kwDistWords,short,medium,long,wordTotal,sentTotal:sents.length,entityCount,entityExamples,zh:true};
+  }
+
+  // English path (original logic)
   const sents=txt.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(s=>s.split(/\s+/).length>=4);
   const wordCounts=sents.map(s=>s.split(/\s+/).length);
   const avgLen=wordCounts.length?Math.round(wordCounts.reduce((a,b)=>a+b,0)/wordCounts.length):0;
   const longSents=wordCounts.filter(n=>n>25).length;
-
-  // Flesch Reading Ease (approximate — counts syllables via vowel groups)
   const words=txt.split(/\s+/).filter(Boolean);
   const syllables=words.reduce((acc,w)=>{
     const s=(w.toLowerCase().match(/[aeiouy]+/g)||[]).length;
@@ -501,23 +690,16 @@ function computeMetrics(txt,kw){
     ?Math.round(206.835-(1.015*(words.length/Math.max(1,sents.length)))-(84.6*(syllables/Math.max(1,words.length))))
     :0;
   const fleschClamped=Math.min(100,Math.max(0,flesch));
-
-  // Keyword distance — index of first occurrence / total chars
   const kwIdx=txt.toLowerCase().indexOf(kw.toLowerCase());
   const kwFirst50=kwIdx>=0&&kwIdx<=txt.split(/\s+/).slice(0,50).join(' ').length;
   const kwDistWords=kwIdx>=0?txt.slice(0,kwIdx).split(/\s+/).filter(Boolean).length:-1;
-
-  // Sentence length distribution
   const short=wordCounts.filter(n=>n<=12).length;
   const medium=wordCounts.filter(n=>n>12&&n<=22).length;
   const long=wordCounts.filter(n=>n>22).length;
-
-  // Entity count — numbers, measurements, model names, named materials
   const entities=(txt.match(/\b\d+[\w"'°%]*|\b[A-Z][a-z]+[A-Z]\w*|\b\d+[\s-]?(?:inch|in|mm|cm|ft|lb|lbs|kg|oz|mph|psi|rpm|gtw|cfm)\b/gi)||[]);
   const entityCount=entities.length;
   const entityExamples=[...new Set(entities.map(e=>e.trim()))].slice(0,5);
-
-  return{avgLen,longSents,fleschClamped,kwFirst50,kwDistWords,short,medium,long,wordTotal:words.length,sentTotal:sents.length,entityCount,entityExamples};
+  return{avgLen,longSents,fleschClamped,kwFirst50,kwDistWords,short,medium,long,wordTotal:words.length,sentTotal:sents.length,entityCount,entityExamples,zh:false};
 }
 
 /* ── CHARACTER OFFSET ANNOTATION ───────────────────────── */
@@ -640,18 +822,19 @@ function renderResults(r,origTxt){
   // Score cards — vertical stack
   h+='<div class="sc-stack">';
   dimKeys.forEach(k=>{
-    const t=r[k]?.total||0;const c=col(t);
+    const t_=r[k]?.total||0;const c=col(t_);
     const info=DIM_INFO[k];
-    const barH=Math.round((t/100)*36);
+    const barH=Math.round((t_/100)*36);
+    const subLabel={geo:t('geo_sub'),seo:t('seo_sub'),ux:t('ux_sub'),fc:t('fc_sub')}[k];
     h+=`<div class="sc${k===_activeDim?' active':''}" data-dim="${k}" onclick="switchDim('${k}')">
       <div class="sc-left">
         <span class="sc-icon">${info.icon}</span>
         <div class="sc-info">
-          <div class="sc-l">${info.label}</div>
-          <div class="sc-name">${k==='geo'?'AI visibility':k==='seo'?'Search ranking':k==='ux'?'Readability':'AI trust'}</div>
+          <div class="sc-l">${t(k)}</div>
+          <div class="sc-name">${subLabel}</div>
         </div>
       </div>
-      <div class="sc-n" style="color:${c}">${t}</div>
+      <div class="sc-n" style="color:${c}">${t_}</div>
       <div class="sc-bar-v"><div class="sc-bar-fill" style="height:${barH}px;margin-top:${36-barH}px;background:${c}"></div></div>
     </div>`;
   });
@@ -659,12 +842,19 @@ function renderResults(r,origTxt){
 
   // Top 3 in sidebar
   if(r.top3?.filter(Boolean).length){
-    h+='<div class="sidebar-top3"><div class="sidebar-top3-t">Top 3 priorities</div>';
-    r.top3.filter(Boolean).forEach((t,i)=>{
-      h+=`<div class="sidebar-top3-i"><div class="sidebar-top3-n">${i+1}</div><span>${escHtml(t)}</span></div>`;
+    h+=`<div class="sidebar-top3"><div class="sidebar-top3-t">${t('top3title')}</div>`;
+    r.top3.filter(Boolean).forEach((item,i)=>{
+      h+=`<div class="sidebar-top3-i"><div class="sidebar-top3-n">${i+1}</div><span>${escHtml(item)}</span></div>`;
     });
     h+='</div>';
   }
+  // Score band legend in sidebar
+  h+=`<div class="score-bands">
+    <div class="score-band"><span class="band-range band-green">80+</span><span>${t('band80')}</span></div>
+    <div class="score-band"><span class="band-range band-amber">60–79</span><span>${t('band60')}</span></div>
+    <div class="score-band"><span class="band-range band-red">&lt;60</span><span>${t('band40')}</span></div>
+  </div>`;
+
   h+='</div>'; // end sidebar
 
   // ── RIGHT MAIN CONTENT ────────────────────────────────────
@@ -693,9 +883,9 @@ function renderResults(r,origTxt){
       <div id="ann-text">${initHtml}</div>
     </div>
     <div class="ann-legend">
-      <div class="leg-i"><div class="leg-dot leg-fail"></div>Needs fixing</div>
-      <div class="leg-i"><div class="leg-dot leg-warn"></div>Could improve</div>
-      <div class="leg-i"><div class="leg-dot leg-pass"></div>Doing well</div>
+      <div class="leg-i"><div class="leg-dot leg-fail"></div>${t('leg_fail')}</div>
+      <div class="leg-i"><div class="leg-dot leg-warn"></div>${t('leg_warn')}</div>
+      <div class="leg-i"><div class="leg-dot leg-pass"></div>${t('leg_pass')}</div>
     </div>
   </div>`;
 
@@ -736,10 +926,11 @@ function renderResults(r,origTxt){
   // Rewrite
   h+=`<div class="rw">
     <div class="rw-hd">
-      <span class="rw-hl">Improved version — ready to copy</span>
-      <button class="sm" onclick="copyRw()">Copy text</button>
+      <span class="rw-hl">${t('rwTitle')}</span>
+      <button class="sm" onclick="copyRw()">${t('rwCopy')}</button>
     </div>
-    <div class="rw-body" id="rw"><span class="spin" style="display:inline-block;margin-right:8px"></span>Generating improved version…</div>
+    <div class="rw-body" id="rw"><span class="spin" style="display:inline-block;margin-right:8px"></span>${t('rwGenerating')}</div>
+    <div class="rw-safety">${t('rwSafety')}</div>
     <div class="rw-foot" id="rw-foot"></div>
   </div>`;
 
@@ -765,19 +956,82 @@ async function callApi(apiKey,prompt){
   return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
 }
 
+// ── DEMO KEY CONFIG ──────────────────────────────────────
+const DEMO_KEY='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'; // replace before publishing
+const DEMO_LIMIT=5;
+const DEMO_STORAGE_KEY='aiscore_demo_uses';
+
+function getDemoUses(){
+  try{return parseInt(localStorage.getItem(DEMO_STORAGE_KEY)||'0',10);}catch(e){return 0;}
+}
+function incDemoUses(){
+  try{localStorage.setItem(DEMO_STORAGE_KEY,String(getDemoUses()+1));}catch(e){}
+}
+function updateDemoUI(){
+  const used=getDemoUses();
+  const remaining=Math.max(0,DEMO_LIMIT-used);
+  const el=document.getElementById('demo-remaining');
+  if(el)el.textContent=remaining;
+  const notice=document.getElementById('demo-notice');
+  const desc=document.getElementById('key-box-desc');
+  const title=document.getElementById('key-box-title');
+  const userKey=(document.getElementById('api-key')?.value||'').trim();
+  const zh=_lang==='zh';
+  if(userKey){
+    if(desc)desc.style.display='none';
+    if(notice)notice.style.display='none';
+    if(title)title.textContent=zh?'你的 API 金鑰':'Your API key';
+  } else if(remaining<=0){
+    if(desc)desc.style.display='none';
+    if(notice){
+      notice.style.display='block';
+      notice.innerHTML=zh
+        ?`<span style="font-size:14px;color:var(--amber);font-weight:600">你的 5 次免費評分已用完。</span><br>
+          <span style="font-size:13px;color:var(--amber)">在下方貼上你自己的金鑰——新帳號有免費額度（約可跑 125–250 次）。</span><br>
+          <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:13px;color:var(--amber);font-weight:700;text-decoration:underline;text-underline-offset:2px">免費申請金鑰 → console.anthropic.com</a>`
+        :`<span style="font-size:14px;color:var(--amber);font-weight:600">Your 5 free scores are used up.</span><br>
+          <span style="font-size:13px;color:var(--amber)">Add your own key below — new Anthropic accounts get free credit (≈ 125–250 scores).</span><br>
+          <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:13px;color:var(--amber);font-weight:700;text-decoration:underline;text-underline-offset:2px">Get a free key → console.anthropic.com</a>`;
+    }
+    if(title)title.textContent=zh?'免費次數已用完':'Free scores used up';
+  } else {
+    if(notice)notice.style.display='none';
+    if(desc){
+      desc.style.display='block';
+      desc.innerHTML=zh
+        ?`你還有 <strong><span id="demo-remaining">${remaining}</span> 次免費評分</strong>——不需要帳號或 API 金鑰。用完後可以輸入自己的金鑰繼續。`
+        :`You have <strong><span id="demo-remaining">${remaining}</span> free score${remaining===1?'':' s'} left</strong> — no sign-up or API key required. Add your own key after to keep going.`;
+    }
+    if(title)title.textContent=zh?'免費試用 — 不需要帳號':'Try it free — no account needed';
+  }
+}
+
 async function run(){
-  const apiKey=document.getElementById('api-key').value.trim();
+  const userKey=document.getElementById('api-key').value.trim();
   const txt=document.getElementById('txt').value.trim();
   const kw=document.getElementById('kw').value.trim();
   const ind=document.getElementById('ind').value.trim()||'e-commerce';
-  if(!apiKey){alert('Please enter your Anthropic API key.');return;}
-  if(!txt){alert('Please paste your content.');return;}
-  if(!kw){alert('Please enter your main keyword.');return;}
+
+  // Determine which key to use
+  let apiKey=userKey;
+  if(!apiKey){
+    const used=getDemoUses();
+    if(used>=DEMO_LIMIT){
+      const msg=_lang==='zh'
+        ?'免費次數已用完，請在上方貼上你自己的 Anthropic API 金鑰繼續使用。'
+        :'Your 5 free scores are used up. Paste your own Anthropic API key above to keep going.';
+      alert(msg);
+      return;
+    }
+    apiKey=DEMO_KEY;
+  }
+  if(!txt){alert(t('errTxt'));return;}
+  if(!kw){alert(t('errKw'));return;}
 
   const btn=document.getElementById('btn');
   btn.disabled=true;
   _activeDim='geo';
-  document.getElementById('st').innerHTML='<span class="spin"></span><span>Analysing…</span>';
+  document.getElementById('st').innerHTML=`<span class="spin"></span><span>${t('scanning')}</span>`;
   document.getElementById('out').innerHTML='';
 
   // ── STEP 1: Compute hard metrics in JS (no AI needed) ────
@@ -864,17 +1118,22 @@ Return ONLY this JSON:
     // Enrich entity evidence with JS-computed values
     r.fc.c1.evidence=`Found ${m.entityCount} specific ${m.entityCount===1?'entity':'entities'}${m.entityExamples.length?': '+m.entityExamples.join(', ')+'.':'.'}${m.entityCount<5?' Aim for 5 or more.':''}`;
     r.seo.c3.evidence=`${m.wordTotal} words on the page.${m.wordTotal<200?' Aim for 200+ for better search coverage.':''}`;
-    r.ux.c1.evidence=`Average sentence length is ${m.avgLen} words. Flesch reading ease: ${m.fleschClamped}/100${m.fleschClamped<60?' — aim for 60+ (shorter sentences help)':''}.`;
+    r.ux.c1.evidence=m.zh
+      ?`平均每句 ${m.avgLen} 個字。${m.avgLen>30?' 建議縮短到 30 字以內，更容易閱讀。':''}`
+      :`Average sentence length is ${m.avgLen} words. Flesch reading ease: ${m.fleschClamped}/100${m.fleschClamped<60?' — aim for 60+ (shorter sentences help)':''}.`;
     _detectedType='';
     r.geo.total=Math.min(100,(r.geo.c1?.pts||0)+(r.geo.c2?.pts||0)+(r.geo.c3?.pts||0));
     r.seo.total=Math.min(100,(r.seo.c1?.pts||0)+(r.seo.c2?.pts||0)+(r.seo.c3?.pts||0));
     r.ux.total=Math.min(100,(r.ux.c1?.pts||0)+(r.ux.c2?.pts||0)+(r.ux.c3?.pts||0));
     r.fc.total=Math.min(100,(r.fc.c1?.pts||0)+(r.fc.c2?.pts||0));
     document.getElementById('st').textContent='';
+    // Count demo usage only (not when user has their own key)
+    if(!userKey){incDemoUses();}
+    updateDemoUI();
     renderResults(r,txt);
     const rw=(r.rewrite||'').trim();
-    document.getElementById('rw').textContent=rw||'No rewrite generated — please try again.';
-    document.getElementById('rw-foot').textContent='1 API call · Paste the rewrite back in to check the improvement.';
+    document.getElementById('rw').textContent=rw||t('noRw');
+    document.getElementById('rw-foot').textContent=t('rwFoot');
     window._rw=rw;
   }catch(e){
     document.getElementById('st').textContent='Error: '+e.message;
@@ -900,6 +1159,14 @@ function copyRw(){
     b.textContent='Copied!';setTimeout(()=>b.textContent=o,1800);
   });
 }
+
+// Init demo UI on page load
+document.addEventListener('DOMContentLoaded',()=>{
+  updateDemoUI();
+  // Watch for user typing their own key to update UI
+  const keyInput=document.getElementById('api-key');
+  if(keyInput)keyInput.addEventListener('input',updateDemoUI);
+});
 </script>
 </body>
 </html>
